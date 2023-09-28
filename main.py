@@ -21,20 +21,35 @@ class mainMenu(Page):
         bg1label = ctk.CTkLabel(frame1, image = bg1, text = '')
         bg1label.grid(row=0, column=0)
 
-        label = ctk.CTkLabel(frame1, text="Main Menu")
-        label.grid(row=0, column=0)
-
         def modeSelection_button():
             controller.pages['modeSelection'].show()
             
         def settings_button():
             controller.pages['settings'].show()
 
-        modeSelection_button = ctk.CTkButton(frame1, text="Play", command=modeSelection_button)
-        settings_button = ctk.CTkButton(frame1, text="Settings", command=settings_button)
+        modeSelection_image = ctk.CTkImage(Image.open("assets/modeSelection.png"), size=(95, 20))
+        settings_image = ctk.CTkImage(Image.open("assets/settings.png"), size=(40, 40))
 
-        modeSelection_button.grid(row=0, column=0)
-        settings_button.grid(row=0, column=0, sticky='s', pady=10)
+        modeSelection_button = ctk.CTkButton(frame1, 
+                                             width=170,
+                                             height=50,
+                                             fg_color='#98a778',
+                                             background_corner_colors=('#304c29','#35502c','#59743e','#59743e'),
+                                             hover_color='#59743e',
+                                             corner_radius=8,
+                                             border_width=2,
+                                             border_color='#FFFFFF',
+                                             text='', image=modeSelection_image, command=modeSelection_button)
+        
+        settings_button = ctk.CTkButton(frame1,
+                                        width=40,
+                                        height=40,
+                                        fg_color='#98a778',
+                                        corner_radius=0,
+                                        text='', image=settings_image, command=settings_button)
+
+        modeSelection_button.grid(row=0, column=0, sticky='s', pady=(0,275))
+        settings_button.grid(row=0, column=0, sticky='s', pady=70)
         
 
 class settings(Page):    
@@ -46,7 +61,6 @@ class settings(Page):
 class modeSelection(Page): #selects singleplayer or multiplayer
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
-
 
         label = ctk.CTkLabel(self, text="Mode Selection")
         label.pack()
