@@ -1,2 +1,2 @@
 # mazeGame
-Comp-Sci NEA
+WIP
