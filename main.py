@@ -9,12 +9,6 @@ class Page(ctk.CTkFrame):
     def show(self):
         self.lift()
 
-    #def prev_page(self, page):
-    #    if page == False:
-    #        return previous_page
-    #    elif page == str:
-    #        previous_page = page
-
 class mainMenu(Page):
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
@@ -90,8 +84,18 @@ class modeSelection(Page): #selects singleplayer or multiplayer
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
 
-        label = ctk.CTkLabel(self, text="Mode Selection")
-        label.pack()
+        frame = ctk.CTkFrame(self)
+        frame.grid(row=0, column=0, sticky='nsew')
+
+        bg2 = ctk.CTkImage(Image.open('assets/bg2.png'), size=(900, 700))
+        bg1label = ctk.CTkLabel(frame, image = bg2, text = '')
+        bg1label.grid(row=0, column=0)
+
+        frame1 = ctk.CTkFrame(frame)
+        frame1.grid(row=0, column=0)
+
+        label = ctk.CTkLabel(frame1, text="Mode Selection")
+        label.grid(row=0, column=1, padx=10, pady=10, sticky='nsew')
 
         def spOptions_button():
             controller.pages['spOptions'].show()
@@ -102,69 +106,69 @@ class modeSelection(Page): #selects singleplayer or multiplayer
         settingsX = 410
         settingsY = 610
             
-        spOptions_button = ctk.CTkButton(self, text="Single Player", command=spOptions_button)
-        mpOptions_button = ctk.CTkButton(self, text="Multi Player", command=mpOptions_button)
+        spOptions_button = ctk.CTkButton(frame1, text="Single Player", command=spOptions_button)
+        mpOptions_button = ctk.CTkButton(frame1, text="Multi Player", command=mpOptions_button)
 
-        spOptions_button.pack()
-        mpOptions_button.pack()
+        spOptions_button.grid(row=1, column=0, padx=10, pady=10, sticky='nsew')
+        mpOptions_button.grid(row=1, column=2, padx=10, pady=10, sticky='nsew')
 class spOptions(Page): #screen to select generation style and grid size for singleplayer
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
         label = ctk.CTkLabel(self, text="Singleplayer Options")
-        label.pack(side="top", fill="both", expand=True)
+        label.grid(row=0, column=0, padx=10, pady=10)
 
         def spGame_button():
             controller.pages['spGame'].show()
 
         spGame_button = ctk.CTkButton(self, text="Start Game", command=spGame_button)
 
-        spGame_button.pack()
+        spGame_button.grid(row=0, column=0, padx=10, pady=10)
 
 class mpOptions(Page): #screen to select generation style and grid size for multiplayer
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
         label = ctk.CTkLabel(self, text="Multiplayer Options")
-        label.pack(side="top", fill="both", expand=True)
+        label.grid(row=0, column=0, padx=10, pady=10)
         
         def mpGame_button():
             controller.pages['mpGame'].show()
 
         mpGame_button = ctk.CTkButton(self, text="Start Game", command=mpGame_button)
 
-        mpGame_button.pack()
+        mpGame_button.grid(row=0, column=0, padx=10, pady=10)
 
 class spGame(Page): #singleplayer game screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
         label = ctk.CTkLabel(self, text="Singleplayer Game")
-        label.pack(side="top", fill="both", expand=True)
+        label.grid(row=0, column=0, padx=10, pady=10)
 
         back_button = ctk.CTkButton(self, text="Back")
-        back_button.pack()
+        back_button.grid(row=0, column=0, padx=10, pady=10)
 
 class mpGame(Page): #multiplayer game screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
         label = ctk.CTkLabel(self, text="Multiplayer Game")
-        label.pack(side="top", fill="both", expand=True)
+        label.grid(row=0, column=0, padx=10, pady=10)
 
         back_button = ctk.CTkButton(self, text="Back")
-        back_button.pack()
+        back_button.grid(row=0, column=0, padx=10, pady=10)
 
 class spResults(Page): #singleplayer results screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
         label = ctk.CTkLabel(self, text="Singleplayer Results")
-        label.pack(side="top", fill="both", expand=True)
+        label.grid(row=0, column=0, padx=10, pady=10)
 
         back_button = ctk.CTkButton(self, text="Back")
-        back_button.pack()
+        back_button.grid(row=0, column=0, padx=10, pady=10)
 
 class mpResults(Page): #multiplayer results screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
         label = ctk.CTkLabel(self, text="Multiplayer Results")
-        label.pack(side="top", fill="both", expand=True)
+        label.grid(row=0, column=0, padx=10, pady=10)
         
         back_button = ctk.CTkButton(self, text="Back")
 
@@ -178,12 +182,10 @@ class Window(ctk.CTkFrame): #create main window
 
         #create a dictionary for all of the different selection pages
         self.pages = {}
-        #for Subclass in (mainMenu, settings, modeSelection, spOptions, mpOptions, spGame, mpGame, spResults, mpResults):
-        for Subclass in (mpResults, spResults, mpGame, spGame, mpOptions, spOptions, modeSelection, settings, mainMenu):
+        for Subclass in (mainMenu, settings, modeSelection, spOptions, mpOptions, spGame, mpGame, spResults, mpResults):
             self.pages[Subclass.__name__] = Subclass(self)
         
-        #mm, st, ms, so, mo, sg, mg, sr, mr = self.pages.values()
-        mr, sr, mg, sg, mo, so, ms, st, mm = self.pages.values()
+        mm, st, ms, so, mo, sg, mg, sr, mr = self.pages.values()
         
         #creating a container frame to contain the widgets of each page
         container = ctk.CTkFrame(self)
