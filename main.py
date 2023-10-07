@@ -12,6 +12,8 @@ class Page(ctk.CTkFrame):
 class mainMenu(Page):
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
+        global cur_page
+        cur_page = 'mainMenu'
 
         frame1 = ctk.CTkFrame(self)
         frame1.grid(row=0, column=0, sticky='nsew')
@@ -20,58 +22,48 @@ class mainMenu(Page):
         bg1label = ctk.CTkLabel(frame1, image = bg1, text = '')
         bg1label.grid(row=0, column=0)
 
-        settingsX = 410
-        settingsY = 610
-
+        mm_settingsX = 410
+        mm_settingsY = 610
+        ms_settingsX = 450
+        ms_settingsY = 610
         quitX = 485
         quitY = 610
 
         def modeSelection_button():
-            page_stack.append('modeSelection')
-            print(page_stack)
+            global cur_page
+            cur_page = 'modeSelection'
+            page_stack.append('mainMenu')
             controller.pages['modeSelection'].show()
             
         def check_position(event):
-            print( f'x: {event.x}, y: {event.y}' )
+            print( f'x: {event.x}, y: {event.y}')
             if page_stack == []:
-                if event.x >= settingsX - 20 and event.x <= settingsX + 20 \
-                and event.y >= settingsY - 20 and event.y <= settingsY + 20:
+                if event.x >= mm_settingsX - 20 and event.x <= mm_settingsX + 20 \
+                and event.y >= mm_settingsY - 20 and event.y <= mm_settingsY + 20:
                     page_stack.append('mainMenu')
-                    print(page_stack)
                     controller.pages['settings'].show()
                 elif event.x >= quitX - 20 and event.x <= quitX + 20 \
                 and event.y >= quitY - 20 and event.y <= quitY + 20:
-                    if askyesno(title='Confirmation', message='Are you sure that you want to quit?') == True:
+                    if askyesno(title='Confirmation', message='Are you sure you want to quit?') == True:
                         root.destroy()
-            else:
-                if event.x >= settingsX - 20 and event.x <= settingsX + 20 \
-                and event.y >= settingsY - 20 and event.y <= settingsY + 20:
+            if cur_page == 'modeSelection':
+                if event.x >= ms_settingsX - 20 and event.x <= ms_settingsX + 20 \
+                and event.y >= ms_settingsY - 20 and event.y <= ms_settingsY + 20:
+                    page_stack.append('modeSelection')
                     controller.pages['settings'].show()
 
         root.bind('<Button-1>', check_position)
 
         modeSelection_image = ctk.CTkImage(Image.open("assets/modeSelection.png"), size=(95, 20))
-
-        modeSelection_button = ctk.CTkButton(frame1, 
-                                             width=170,
-                                             height=50,
-                                             fg_color='#98a778',
-                                             background_corner_colors=('#304c29','#35502c','#59743e','#59743e'),
-                                             hover_color='#59743e',
-                                             corner_radius=8,
-                                             border_width=2,
-                                             border_color='#FFFFFF',
-                                             text='', image=modeSelection_image, command=modeSelection_button)
-
+        modeSelection_button = ctk.CTkButton(frame1, width=170, height=50, fg_color='#98a778', background_corner_colors=('#304c29','#35502c','#59743e','#59743e'), hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text='', image=modeSelection_image, command=modeSelection_button)
         modeSelection_button.grid(row=0, column=0, sticky='s', pady=(0,275))
 
 class settings(Page):    
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
+
         label = ctk.CTkLabel(self, text="Settings")
         label.grid(row=0, column=0)
-
-        print(f'settings {page_stack}')
 
         def back_button():
             previous_page = page_stack.pop()
@@ -83,7 +75,8 @@ class settings(Page):
 class modeSelection(Page): #selects singleplayer or multiplayer
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
-
+        global cur_page
+        
         frame = ctk.CTkFrame(self)
         frame.grid(row=0, column=0, sticky='nsew')
 
@@ -91,26 +84,31 @@ class modeSelection(Page): #selects singleplayer or multiplayer
         bg1label = ctk.CTkLabel(frame, image = bg2, text = '')
         bg1label.grid(row=0, column=0)
 
-        frame1 = ctk.CTkFrame(frame)
-        frame1.grid(row=0, column=0)
-
-        label = ctk.CTkLabel(frame1, text="Mode Selection")
-        label.grid(row=0, column=1, padx=10, pady=10, sticky='nsew')
-
         def spOptions_button():
             controller.pages['spOptions'].show()
             
         def mpOptions_button():
             controller.pages['mpOptions'].show()
 
-        settingsX = 410
-        settingsY = 610
-            
-        spOptions_button = ctk.CTkButton(frame1, text="Single Player", command=spOptions_button)
-        mpOptions_button = ctk.CTkButton(frame1, text="Multi Player", command=mpOptions_button)
+        def back_button():
+            global cur_page
+            cur_page = 'settings'
+            previous_page = page_stack.pop()
+            controller.pages[previous_page].show()
+        
+        back_button = ctk.CTkButton(frame, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text="BACK", command=back_button)
 
-        spOptions_button.grid(row=1, column=0, padx=10, pady=10, sticky='nsew')
-        mpOptions_button.grid(row=1, column=2, padx=10, pady=10, sticky='nsew')
+        back_button.grid(row=0, column=0, padx=(0,520), pady=(0,494))
+        
+        spOptions_image = ctk.CTkImage(Image.open("assets/sp_button.png"), size=(245,245))
+        mpOptions_image = ctk.CTkImage(Image.open("assets/mp_button.png"), size=(250,250))
+
+        spOptions_button = ctk.CTkButton(frame, width=290, height=346, corner_radius=20, fg_color='#82925e', hover_color='#606c46', background_corner_colors=('#3f522b','#3f522b','#839b61','#3f522b'), border_width=2, border_color='#c7ced7', text="", image=spOptions_image, command=spOptions_button)
+        mpOptions_button = ctk.CTkButton(frame, width=290, height=346, corner_radius=20, fg_color='#82925e', hover_color='#606c46', background_corner_colors=('#3f522b','#3f522b','#3f522b','#839b61'), border_width=2, border_color='#c7ced7', text="", image=mpOptions_image, command=mpOptions_button)
+
+        spOptions_button.grid(row=0, column=0, padx=(0,382), pady=(36,0))
+        mpOptions_button.grid(row=0, column=0, padx=(399,0), pady=(36,0))
+
 class spOptions(Page): #screen to select generation style and grid size for singleplayer
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
@@ -176,9 +174,10 @@ class Window(ctk.CTkFrame): #create main window
     def __init__(self, *args, **kwargs):
         ctk.CTkFrame.__init__(self, *args, **kwargs)
 
-        global page_stack
+        global page_stack, cur_page
 
         page_stack = []
+        cur_page = ''
 
         #create a dictionary for all of the different selection pages
         self.pages = {}
