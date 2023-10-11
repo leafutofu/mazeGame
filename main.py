@@ -118,9 +118,22 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         def spGame_button():
             controller.pages['spGame'].show()
 
+        c_frame = ctk.CTkFrame(self, width=600, height=600)
+        c_frame.grid(row=1, column=1, sticky='nsew')
+
+        def combobox_callback(choice):
+            print("combobox dropdown clicked:", choice)
+
+        combobox = ctk.CTkComboBox(c_frame, width=300, height=30, values=['Depth First Search', 'Hunt-and-Kill', 'Sidewinder'], command=combobox_callback)
+        combobox.set('Select a generation algorithm')
+        combobox.grid(row=0, column=0, padx=100, pady=50)
+
+        slider = ctk.CTkSlider(c_frame)
+        slider.grid(row=1, column=0, padx=100, pady=50)
+
         spGame_button = ctk.CTkButton(self, text="Start Game", command=spGame_button)
 
-        spGame_button.grid(row=0, column=0, padx=10, pady=10)
+        spGame_button.grid(row=2, column=3, padx=10, pady=10)
 
 class mpOptions(Page): #screen to select generation style and grid size for multiplayer
     def __init__(self, controller, *args, **kwargs):
