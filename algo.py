@@ -1,11 +1,10 @@
 import customtkinter as ctk
 import random
-can_width, can_height = 600, 600
-cols = 30
-w = can_width / cols
-counter = 0
+
 class Graph:
     def __init__(self, size):
+        global w
+        w = 600 / size
         self.size = size
         self.num_nodes = self.size**2
         self.adj_mat = [[0 for column in range(self.num_nodes)]
@@ -61,10 +60,8 @@ class Graph:
                 randDFS(start_node)
                 break
             except RecursionError:
-                global counter
-                counter += 1
                 print('recursion error: retrying')
-                self.__init__(cols)
+                self.__init__(self.size)
 
     def Hunt_and_Kill(self):
         pass
@@ -73,10 +70,10 @@ class Graph:
 
 def create_canvas(frame):
     global canvas
-    canvas = ctk.CTkCanvas(frame, width=can_width, height=can_height, bg='white')
+    canvas = ctk.CTkCanvas(frame, width=600, height=600, bg='white')
     canvas.pack(anchor=ctk.CENTER, expand=True)
 
-def draw_maze(graph):
+def draw_maze(graph, cols):
     canvas.delete("all")
     for node in range(cols**2):
         directions = [(0, 1, 'R'), (0, -1, 'L'), (1, 0, 'B'), (-1, 0, 'T')]
@@ -96,8 +93,32 @@ def draw_maze(graph):
             except IndexError:
                 pass
             
+def draw_player(mode):
+    global p1, p2
+    if mode == 'single':
+        p1 = canvas.create_rectangle(4, 4, w-4, w-4, fill='red')
+    if mode == 'multi':
+        p1 = canvas.create_rectangle(4, 4, w-4, w-4, fill='red')
+        p2 = canvas.create_rectangle(4, 4, w-4, w-4, fill='blue')
 
+def move_p1(event):
+    print(event)
+    if event.keysym == 'w':
+        canvas.move(p1, 0, -w)
+    if event.keysym == 'a':
+        canvas.move(p1, -w, 0)
+    if event.keysym == 's':
+        canvas.move(p1, 0, w)
+    if event.keysym == 'd':
+        canvas.move(p1, w, 0)
 
-graph1 = Graph(cols)
-graph1.DFS()
-print(f'generated after {counter+1} attempt(s)')
+def move_p2(event):
+    print(event)
+    if event.keysym == 'Up':
+        canvas.move(p2, 0, -w)
+    if event.keysym == 'Left':
+        canvas.move(p2, -w, 0)
+    if event.keysym == 'Down':
+        canvas.move(p2, 0, w)
+    if event.keysym == 'Right':
+        canvas.move(p2, w, 0)

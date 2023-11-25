@@ -1,5 +1,5 @@
 import customtkinter as ctk #for GUI
-#from algo import *
+import algo
 from tkinter.messagebox import askyesno #for pop-up box when exiting the program
 from PIL import Image #to import images for buttons and backgrounds
 
@@ -117,8 +117,6 @@ class spOptions(Page): #screen to select generation style and grid size for sing
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
 
-        global game_loop
-
         m_frame = ctk.CTkFrame(self)
         m_frame.grid(row=0, column=0, sticky='nsew')
 
@@ -132,7 +130,8 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         #
 
         def combobox_callback(choice):
-            print(int(get_current_value()), choice)
+            global params
+            params = [int(get_current_value()), choice]
 
         combobox = ctk.CTkComboBox(s_frame, width=300, height=30, values=['Depth First Search', 'Hunt-and-Kill', 'Sidewinder'], command=combobox_callback)
         combobox.set('Select a generation algorithm')
@@ -143,7 +142,7 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         slider_value = ctk.DoubleVar()
 
         def get_current_value():
-            value = '{: .0f}'.format(slider_value.get()*40+10)
+            value = '{: .0f}'.format(slider_value.get()*25+5)
             return value
         
         def format_value(value):
@@ -161,6 +160,7 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         #
 
         def spGame_button():
+            sg.spGameCanvas()
             controller.pages['spGame'].show()
 
         spGame_button = ctk.CTkButton(self, text="Start Game", command=spGame_button)
@@ -186,6 +186,23 @@ class spGame(Page): #singleplayer game screen
 
         label = ctk.CTkLabel(self, text="Singleplayer Game")
         label.grid(row=0, column=0, padx=10, pady=10)
+
+    def spGameCanvas(self):
+
+        game_frame = ctk.CTkFrame(self, width=600, height=600)
+        game_frame.grid(row=1, column=0)
+
+        algo.create_canvas(game_frame)
+        algo.graph = algo.Graph(params[0])
+     
+        if params[1] == 'Depth First Search':
+            algo.graph.DFS()
+        elif params[1] == 'Hunt-and-Kill':
+            pass
+        elif params[1] == 'Sidewinder':
+            pass
+           
+        algo.draw_maze(algo.graph, params[0])
 
         
 
@@ -220,10 +237,10 @@ class Window(ctk.CTkFrame): #create main window
         ctk.CTkFrame.__init__(self, *args, **kwargs)
 
         #variables for a dynamic back button
-        global page_stack, cur_page
+        global page_stack, cur_page, sg
         page_stack = [] 
         cur_page = ''
-
+        
         #create a dictionary for all of the different selection pages
         self.pages = {}
         for Subclass in (mainMenu, settings, modeSelection, spOptions, mpOptions, spGame, mpGame, spResults, mpResults):
