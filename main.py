@@ -100,7 +100,7 @@ class modeSelection(Page): #selects singleplayer or multiplayer
             previous_page = page_stack.pop()
             controller.pages[previous_page].show()
         
-        back_button = ctk.CTkButton(frame_ms, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text="BACK", command=back_button)
+        back_button = ctk.CTkButton(frame_ms, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35), text="<", command=back_button)
 
         back_button.grid(row=0, column=0, padx=(0,520), pady=(0,494))
         
@@ -120,24 +120,30 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         m_frame = ctk.CTkFrame(self)
         m_frame.grid(row=0, column=0, sticky='nsew')
 
-        #bg3 = ctk.CTkImage(Image.open('assets/bg3.png'), size=(900, 700)) 
-        #bg3label = ctk.CTkLabel(m_frame, image = bg3, text = '')
-        #bg3label.grid(row=0, column=0)
+        bg3 = ctk.CTkImage(Image.open('assets/bg3.png'), size=(900, 700)) 
+        bg3label = ctk.CTkLabel(m_frame, image = bg3, text = '')
+        bg3label.grid(row=0, column=0)
 
-        s_frame = ctk.CTkFrame(m_frame, width=600, height=600)
-        s_frame.grid(row=1, column=1, sticky='nsew')
-
-        #
+        s_frame = ctk.CTkFrame(m_frame, width=900, height=650, fg_color='#82925e', border_width=2, border_color='#c7ced7')
+        s_frame.grid(row=0, column=0, padx=70, pady=(70,90))
 
         def combobox_callback(choice):
             global params
-            params = [int(get_current_value()), choice]
+            if choice == -1:
+                params[0] = int(get_current_value())
+            else:
+                params = [int(get_current_value()), choice]
 
-        combobox = ctk.CTkComboBox(s_frame, width=300, height=30, values=['Depth First Search', 'Hunt-and-Kill', 'Sidewinder'], command=combobox_callback)
+        title_label = ctk.CTkLabel(s_frame, text='-Singleplayer Options-', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35))
+        title_label.grid(row=0, column=0, padx = (0, 10), pady=(20, 300))
+
+        combobox = ctk.CTkComboBox(s_frame, width=400, height=50, 
+                                   values=['Depth First Search', 'Hunt-and-Kill', 'Sidewinder'], 
+                                   font=('Upheaval TT (BRK)', 20), 
+                                   dropdown_font=('Upheaval TT (BRK)', 20), 
+                                   command=combobox_callback)
         combobox.set('Select a generation algorithm')
-        combobox.grid(row=0, column=0, padx=100, pady=50)
-
-        #
+        combobox.grid(row=0, column=0, padx=100, pady=(0, 120))
 
         slider_value = ctk.DoubleVar()
 
@@ -151,34 +157,82 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         def slider_changed(event):
             slider_value_label.configure(text=format_value(get_current_value()))
 
-        slider_value_label = ctk.CTkLabel(s_frame, text=format_value(get_current_value()))
-        slider_value_label.grid(row=1, column=0)
+        slider_label = ctk.CTkLabel(s_frame, text='> Grid size:', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30))
+        slider_label.grid(row=0, column=0, padx = (0, 255), pady=(15, 0))
 
-        slider = ctk.CTkSlider(s_frame, variable=slider_value, command=slider_changed)
-        slider.grid(row=1, column=1)
+        slider_value_label = ctk.CTkLabel(s_frame, text=format_value(get_current_value()), text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30))
+        slider_value_label.grid(row=0, column=0, padx = (50, 0), pady=(15, 0))
 
-        #
+        slider = ctk.CTkSlider(s_frame, width=400, button_color='#FFFFFF', button_hover_color='#cccccc', variable=slider_value, command=slider_changed)
+        slider.grid(row=0, column=0, padx = (0, 0), pady=(110, 0))
 
         def spGame_button():
+            combobox_callback(-1)
             sg.spGameCanvas()
             controller.pages['spGame'].show()
 
-        spGame_button = ctk.CTkButton(self, text="Start Game", command=spGame_button)
-
-        spGame_button.grid(row=2, column=3, padx=10, pady=10)
+        spGame_button = ctk.CTkButton(s_frame, fg_color='#75a050', hover_color='#3d5329', text='START', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30), border_width=2, border_color='#c7ced7', command=spGame_button)
+        spGame_button.grid(row=0, column=0, padx=10, pady=(230, 0))
 
 class mpOptions(Page): #screen to select generation style and grid size for multiplayer
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
-        label = ctk.CTkLabel(self, text="Multiplayer Options")
-        label.grid(row=0, column=0, padx=10, pady=10)
+        m_frame = ctk.CTkFrame(self)
+        m_frame.grid(row=0, column=0, sticky='nsew')
+
+        bg3 = ctk.CTkImage(Image.open('assets/bg3.png'), size=(900, 700)) 
+        bg3label = ctk.CTkLabel(m_frame, image = bg3, text = '')
+        bg3label.grid(row=0, column=0)
+
+        s_frame = ctk.CTkFrame(m_frame, width=900, height=650, fg_color='#82925e', border_width=2, border_color='#c7ced7')
+        s_frame.grid(row=0, column=0, padx=70, pady=(70,90))
+
+        def combobox_callback(choice):
+            global params
+            if choice == -1:
+                params[0] = int(get_current_value())
+            else:
+                params = [int(get_current_value()), choice]
+
+        title_label = ctk.CTkLabel(s_frame, text='-Multiplayer Options-', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35))
+        title_label.grid(row=0, column=0, padx = (0, 10), pady=(20, 300))
+
+        combobox = ctk.CTkComboBox(s_frame, width=400, height=50, 
+                                   values=['Depth First Search', 'Hunt-and-Kill', 'Sidewinder'], 
+                                   font=('Upheaval TT (BRK)', 20), 
+                                   dropdown_font=('Upheaval TT (BRK)', 20), 
+                                   command=combobox_callback)
+        combobox.set('Select a generation algorithm')
+        combobox.grid(row=0, column=0, padx=100, pady=(0, 120))
+
+        slider_value = ctk.DoubleVar()
+
+        def get_current_value():
+            value = '{: .0f}'.format(slider_value.get()*25+5)
+            return value
         
+        def format_value(value):
+            return f'{value} x{value}'
+        
+        def slider_changed(event):
+            slider_value_label.configure(text=format_value(get_current_value()))
+
+        slider_label = ctk.CTkLabel(s_frame, text='> Grid size:', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30))
+        slider_label.grid(row=0, column=0, padx = (0, 255), pady=(15, 0))
+
+        slider_value_label = ctk.CTkLabel(s_frame, text=format_value(get_current_value()), text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30))
+        slider_value_label.grid(row=0, column=0, padx = (50, 0), pady=(15, 0))
+
+        slider = ctk.CTkSlider(s_frame, width=400, button_color='#FFFFFF', button_hover_color='#cccccc', variable=slider_value, command=slider_changed)
+        slider.grid(row=0, column=0, padx = (0, 0), pady=(110, 0))
+
         def mpGame_button():
+            combobox_callback(-1)
+            mg.mpGameCanvas()
             controller.pages['mpGame'].show()
 
-        mpGame_button = ctk.CTkButton(self, text="Start Game", command=mpGame_button)
-
-        mpGame_button.grid(row=0, column=0, padx=10, pady=10)
+        mpGame_button = ctk.CTkButton(s_frame, fg_color='#75a050', hover_color='#3d5329', text='START', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30), border_width=2, border_color='#c7ced7', command=mpGame_button)
+        mpGame_button.grid(row=0, column=0, padx=10, pady=(230, 0))
 
 class spGame(Page): #singleplayer game screen
     def __init__(self, controller, *args, **kwargs):
@@ -198,13 +252,12 @@ class spGame(Page): #singleplayer game screen
         if params[1] == 'Depth First Search':
             algo.graph.DFS()
         elif params[1] == 'Hunt-and-Kill':
-            pass
+            algo.graph.Hunt_and_Kill()
         elif params[1] == 'Sidewinder':
-            pass
+            algo.graph.Sidewinder()
            
-        algo.draw_maze(algo.graph, params[0])
-
-        
+        algo.draw_maze(params[0])
+        algo.draw_player('single')
 
 class mpGame(Page): #multiplayer game screen
     def __init__(self, controller, *args, **kwargs):
@@ -212,8 +265,23 @@ class mpGame(Page): #multiplayer game screen
         label = ctk.CTkLabel(self, text="Multiplayer Game")
         label.grid(row=0, column=0, padx=10, pady=10)
 
-        back_button = ctk.CTkButton(self, text="Back")
-        back_button.grid(row=0, column=0, padx=10, pady=10)
+    def mpGameCanvas(self):
+
+        game_frame = ctk.CTkFrame(self, width=600, height=600)
+        game_frame.grid(row=1, column=0)
+
+        algo.create_canvas(game_frame)
+        algo.graph = algo.Graph(params[0])
+     
+        if params[1] == 'Depth First Search':
+            algo.graph.DFS()
+        elif params[1] == 'Hunt-and-Kill':
+            algo.graph.Hunt_and_Kill()
+        elif params[1] == 'Sidewinder':
+            algo.graph.Sidewinder()
+           
+        algo.draw_maze(params[0])
+        algo.draw_player('multi')
 
 class spResults(Page): #singleplayer results screen
     def __init__(self, controller, *args, **kwargs):
@@ -237,10 +305,10 @@ class Window(ctk.CTkFrame): #create main window
         ctk.CTkFrame.__init__(self, *args, **kwargs)
 
         #variables for a dynamic back button
-        global page_stack, cur_page, sg
+        global page_stack, cur_page, sg, mg
         page_stack = [] 
         cur_page = ''
-        
+
         #create a dictionary for all of the different selection pages
         self.pages = {}
         for Subclass in (mainMenu, settings, modeSelection, spOptions, mpOptions, spGame, mpGame, spResults, mpResults):
@@ -268,5 +336,18 @@ if __name__ == "__main__":
     root.wm_geometry("900x700") #window size
     root.wm_title('Hedge') #window title
     root.wm_iconbitmap('assets/icon.ico') #window icon
-    root.wm_resizable(False, False) #makes window a fixed size
+    #root.wm_resizable(False, False) #makes window a fixed size
+
+    root.bind('<w>', algo.move_p1)
+    root.bind('<a>', algo.move_p1)
+    root.bind('<s>', algo.move_p1)
+    root.bind('<d>', algo.move_p1)
+
+    root.bind('<Up>', algo.move_p2)
+    root.bind('<Left>', algo.move_p2)
+    root.bind('<Down>', algo.move_p2)
+    root.bind('<Right>', algo.move_p2)
+
     root.mainloop()
+
+    
