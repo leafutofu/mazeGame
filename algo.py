@@ -173,19 +173,41 @@ def node_player(player): #returns the node the player is on given coordinates of
 
     return node_y * cols + node_x
 
+def future_pos(player, direction):
+    coords = canvas.bbox(player)
+    x = coords[0] - 2
+    y = coords[1] - 2
+
+    if direction == 'N':
+        return y-w
+    if direction == 'W':
+        return x-w
+    if direction == 'S':
+        return y+w
+    if direction == 'E':
+        return x+w
+
 def move_p1(event):
     while True:
         try:
             cols = int(600 / w)
             node = node_player(p1)
             if event.keysym == 'w' and adj_mat[node][node-cols] == 0:
-                canvas.move(p1, 0, -w)
+                pos = future_pos(p1, 'N')
+                if pos > 0:
+                    canvas.move(p1, 0, -w)
             if event.keysym == 'a' and adj_mat[node][node-1] == 0:
-                canvas.move(p1, -w, 0)
+                pos = future_pos(p1, 'W')
+                if pos > 0:
+                    canvas.move(p1, -w, 0)
             if event.keysym == 's' and adj_mat[node][node+cols] == 0:
-                canvas.move(p1, 0, w)
+                pos = future_pos(p1, 'S')
+                if pos < 600:
+                    canvas.move(p1, 0, w)
             if event.keysym == 'd' and adj_mat[node][node+1] == 0:
-                canvas.move(p1, w, 0)
+                pos = future_pos(p1, 'E')
+                if pos < 600:
+                    canvas.move(p1, w, 0)
             break
         except NameError:
             break
@@ -196,13 +218,21 @@ def move_p2(event):
             cols = int(600 / w)
             node = node_player(p2)
             if event.keysym == 'Up' and adj_mat[node][node-cols] == 0:
-                canvas.move(p2, 0, -w)
+                pos = future_pos(p2, 'N')
+                if pos > 0:
+                    canvas.move(p2, 0, -w)
             if event.keysym == 'Left' and adj_mat[node][node-1] == 0:
-                canvas.move(p2, -w, 0)
+                pos = future_pos(p2, 'W')
+                if pos > 0:
+                    canvas.move(p2, -w, 0)
             if event.keysym == 'Down' and adj_mat[node][node+cols] == 0:
-                canvas.move(p2, 0, w)
+                pos = future_pos(p2, 'S')
+                if pos < 600:
+                    canvas.move(p2, 0, w)
             if event.keysym == 'Right' and adj_mat[node][node+1] == 0:
-                canvas.move(p2, w, 0)
+                pos = future_pos(p2, 'E')
+                if pos < 600:
+                    canvas.move(p2, w, 0)
             break
         except NameError:
             break

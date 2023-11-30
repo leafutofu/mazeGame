@@ -2,7 +2,6 @@ import customtkinter as ctk #for GUI
 import algo
 from tkinter.messagebox import askyesno #for pop-up box when exiting the program
 from PIL import Image #to import images for buttons and backgrounds
-from functools import partial
 
 class Page(ctk.CTkFrame): #all page classes (e.g. mainMenu, modeSelection etc.) inherit this class
     def __init__(self, *args, **kwargs):
@@ -70,12 +69,16 @@ class settings(Page):
         label = ctk.CTkLabel(self, text="Settings")
         label.grid(row=0, column=0)
 
+        bg4 = ctk.CTkImage(Image.open('assets/bg4.png'), size=(900, 700)) 
+        bg4label = ctk.CTkLabel(self, image = bg4, text = '')
+        bg4label.grid(row=0, column=0)
+
         def back_button(): #directs to either the main menu or mode selection page depending on the contents of the page stack
             previous_page = page_stack.pop() #returns the top of the stack to identify the page previous to the settings page
             controller.pages[previous_page].show() #shows the page previous to the settings page
         
-        back_button = ctk.CTkButton(self, text="Back", command=back_button) #back button styling WIP
-        back_button.grid(row=0, column=0)
+        back_button = ctk.CTkButton(self, height=40, fg_color='#98a778', bg_color='#96ab72', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
+        back_button.grid(row=0, column=0, padx=(0,460), pady=(0,354))
 
 class modeSelection(Page): #selects singleplayer or multiplayer
     def __init__(self, controller, *args, **kwargs):
@@ -101,7 +104,7 @@ class modeSelection(Page): #selects singleplayer or multiplayer
             previous_page = page_stack.pop()
             controller.pages[previous_page].show()
         
-        back_button = ctk.CTkButton(frame_ms, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35), text="<", command=back_button)
+        back_button = ctk.CTkButton(frame_ms, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
 
         back_button.grid(row=0, column=0, padx=(0,520), pady=(0,494))
         
@@ -175,6 +178,13 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         spGame_button = ctk.CTkButton(s_frame, fg_color='#75a050', hover_color='#3d5329', text='START', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30), border_width=2, border_color='#c7ced7', command=spGame_button)
         spGame_button.grid(row=0, column=0, padx=10, pady=(230, 0))
 
+        def back_button():
+            controller.pages['modeSelection'].show()
+        
+        back_button = ctk.CTkButton(self, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
+
+        back_button.grid(row=0, column=0, padx=(0,460), pady=(0,494))
+
 class mpOptions(Page): #screen to select generation style and grid size for multiplayer
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
@@ -235,17 +245,30 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         mpGame_button = ctk.CTkButton(s_frame, fg_color='#75a050', hover_color='#3d5329', text='START', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30), border_width=2, border_color='#c7ced7', command=mpGame_button)
         mpGame_button.grid(row=0, column=0, padx=10, pady=(230, 0))
 
+        def back_button():
+            controller.pages['modeSelection'].show()
+        
+        back_button = ctk.CTkButton(self, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
+
+        back_button.grid(row=0, column=0, padx=(0,460), pady=(0,494))
 class spGame(Page): #singleplayer game screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
 
-        label = ctk.CTkLabel(self, text="Singleplayer Game")
-        label.grid(row=0, column=1, padx=10, pady=10)
+        label = ctk.CTkLabel(self, text="Singleplayer Game", text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25))
+        label.grid(row=0, column=0, padx=10, pady=10)
+        
+        def back_button():
+            controller.pages['spOptions'].show()
+        
+        back_button = ctk.CTkButton(self, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 15), text="demo bck", command=back_button)
+
+        back_button.grid(row=0, column=0, padx=(0,465))    
 
     def spGameCanvas(self):
 
         game_frame = ctk.CTkFrame(self, width=600, height=600)
-        game_frame.grid(row=1, column=1, padx = 200)
+        game_frame.grid(row=1, column=0, padx = 150)
 
         algo.create_canvas(game_frame)
         algo.graph = algo.Graph(params[0])
@@ -259,17 +282,25 @@ class spGame(Page): #singleplayer game screen
            
         algo.draw_maze()
         algo.draw_player('single')
+        
 
 class mpGame(Page): #multiplayer game screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
-        label = ctk.CTkLabel(self, text="Multiplayer Game")
+        label = ctk.CTkLabel(self, text="Multiplayer Game", text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25))
         label.grid(row=0, column=0, padx=10, pady=10)
+
+        def back_button():
+            controller.pages['mpOptions'].show()
+        
+        back_button = ctk.CTkButton(self, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 15), text="demo bck", command=back_button)
+
+        back_button.grid(row=0, column=0, padx=(0,465))  
 
     def mpGameCanvas(self):
 
         game_frame = ctk.CTkFrame(self, width=600, height=600)
-        game_frame.grid(row=1, column=0)
+        game_frame.grid(row=1, column=0, padx = 150)
 
         algo.create_canvas(game_frame)
         algo.graph = algo.Graph(params[0])
