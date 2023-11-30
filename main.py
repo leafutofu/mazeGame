@@ -2,6 +2,7 @@ import customtkinter as ctk #for GUI
 import algo
 from tkinter.messagebox import askyesno #for pop-up box when exiting the program
 from PIL import Image #to import images for buttons and backgrounds
+from functools import partial
 
 class Page(ctk.CTkFrame): #all page classes (e.g. mainMenu, modeSelection etc.) inherit this class
     def __init__(self, *args, **kwargs):
@@ -239,12 +240,12 @@ class spGame(Page): #singleplayer game screen
         Page.__init__(self, *args, **kwargs)
 
         label = ctk.CTkLabel(self, text="Singleplayer Game")
-        label.grid(row=0, column=0, padx=10, pady=10)
+        label.grid(row=0, column=1, padx=10, pady=10)
 
     def spGameCanvas(self):
 
         game_frame = ctk.CTkFrame(self, width=600, height=600)
-        game_frame.grid(row=1, column=0)
+        game_frame.grid(row=1, column=1, padx = 200)
 
         algo.create_canvas(game_frame)
         algo.graph = algo.Graph(params[0])
@@ -256,7 +257,7 @@ class spGame(Page): #singleplayer game screen
         elif params[1] == 'Sidewinder':
             algo.graph.Sidewinder()
            
-        algo.draw_maze(params[0])
+        algo.draw_maze()
         algo.draw_player('single')
 
 class mpGame(Page): #multiplayer game screen
@@ -280,7 +281,7 @@ class mpGame(Page): #multiplayer game screen
         elif params[1] == 'Sidewinder':
             algo.graph.Sidewinder()
            
-        algo.draw_maze(params[0])
+        algo.draw_maze()
         algo.draw_player('multi')
 
 class spResults(Page): #singleplayer results screen
@@ -347,7 +348,7 @@ if __name__ == "__main__":
     root.bind('<Left>', algo.move_p2)
     root.bind('<Down>', algo.move_p2)
     root.bind('<Right>', algo.move_p2)
-
+    
     root.mainloop()
 
     

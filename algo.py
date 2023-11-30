@@ -126,10 +126,14 @@ class Graph:
 
 def create_canvas(frame):
     global canvas
-    canvas = ctk.CTkCanvas(frame, width=600, height=600, bg='white')
+    canvas = ctk.CTkCanvas(frame, width=600, height=600, bg='#FFFFFF')
     canvas.pack(anchor=ctk.CENTER, expand=True)
 
-def draw_maze(cols):
+def draw_maze():
+    cols = int(600 / w)
+    linewidth = 3
+    line_colour = '#44612d'
+    print(cols)
     canvas.delete("all")
     for node in range(cols**2):
         directions = [(0, 1, 'R'), (0, -1, 'L'), (1, 0, 'B'), (-1, 0, 'T')]
@@ -139,16 +143,16 @@ def draw_maze(cols):
                     r = node // cols #row number of current node
                     c = node % cols #column number of current node
                     if direction == 'R':
-                        canvas.create_line((c+1)*w, (r)*w, (c+1)*w, (r+1)*w)
+                        canvas.create_line((c+1)*w, (r)*w, (c+1)*w, (r+1)*w, width=linewidth, fill=line_colour)
                     elif direction == 'L':
-                        canvas.create_line(c * w, r * w, c * w, (r + 1) * w)
+                        canvas.create_line(c * w, r * w, c * w, (r + 1) * w, width=linewidth, fill=line_colour)
                     elif direction == 'B':
-                        canvas.create_line(c * w, (r + 1) * w, (c + 1) * w, (r + 1) * w)
+                        canvas.create_line(c * w, (r + 1) * w, (c + 1) * w, (r + 1) * w, width=linewidth, fill=line_colour)
                     elif direction == 'T':
-                        canvas.create_line(c * w, r * w, (c + 1) * w, r * w)
+                        canvas.create_line(c * w, r * w, (c + 1) * w, r * w, width=linewidth, fill=line_colour)
             except IndexError:
                 pass
-    canvas.create_rectangle((cols-1)*w, (cols-1)*w, cols*w, cols*w, fill='green')
+    canvas.create_rectangle((cols-1)*w+5, (cols-1)*w+5, cols*w-5, cols*w-5, fill='green')
 
 def draw_player(mode):
     global p1, p2
@@ -158,21 +162,29 @@ def draw_player(mode):
         p1 = canvas.create_rectangle(4, 4, w-4, w-4, fill='red')
         p2 = canvas.create_rectangle(4, 4, w-4, w-4, fill='blue')
 
-def node_player(player):
+def node_player(player): #returns the node the player is on given coordinates of top left corner of player on canvas
+    cols = int(600 / w)
     coords = canvas.bbox(player)
-    print(coords)
+    x = coords[0] - 2
+    y = coords[1] - 2
+
+    node_x = int(x/w)
+    node_y = int(y/w)
+
+    return node_y * cols + node_x
 
 def move_p1(event):
     while True:
         try:
+            cols = int(600 / w)
             node = node_player(p1)
-            if event.keysym == 'w' and adj_mat[node][node] == 0:
+            if event.keysym == 'w' and adj_mat[node][node-cols] == 0:
                 canvas.move(p1, 0, -w)
-            if event.keysym == 'a':
+            if event.keysym == 'a' and adj_mat[node][node-1] == 0:
                 canvas.move(p1, -w, 0)
-            if event.keysym == 's':
+            if event.keysym == 's' and adj_mat[node][node+cols] == 0:
                 canvas.move(p1, 0, w)
-            if event.keysym == 'd':
+            if event.keysym == 'd' and adj_mat[node][node+1] == 0:
                 canvas.move(p1, w, 0)
             break
         except NameError:
@@ -181,13 +193,15 @@ def move_p1(event):
 def move_p2(event):
     while True:
         try:
-            if event.keysym == 'Up':
+            cols = int(600 / w)
+            node = node_player(p2)
+            if event.keysym == 'Up' and adj_mat[node][node-cols] == 0:
                 canvas.move(p2, 0, -w)
-            if event.keysym == 'Left':
+            if event.keysym == 'Left' and adj_mat[node][node-1] == 0:
                 canvas.move(p2, -w, 0)
-            if event.keysym == 'Down':
+            if event.keysym == 'Down' and adj_mat[node][node+cols] == 0:
                 canvas.move(p2, 0, w)
-            if event.keysym == 'Right':
+            if event.keysym == 'Right' and adj_mat[node][node+1] == 0:
                 canvas.move(p2, w, 0)
             break
         except NameError:
