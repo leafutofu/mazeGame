@@ -187,7 +187,18 @@ def future_pos(player, direction):
     if direction == 'E':
         return x+w
 
+def detect_win(mode):
+    if mode == 'single':
+        #player 1
+        pass
+    elif mode == 'multi':
+        pass
+    
+def get_moves(mode):
+    return p1moves if mode == 'single' else [p1moves, p2moves]
+
 def move_p1(event):
+    global p1moves
     while True:
         try:
             cols = int(600 / w)
@@ -196,23 +207,28 @@ def move_p1(event):
                 pos = future_pos(p1, 'N')
                 if pos > 0:
                     canvas.move(p1, 0, -w)
+                    p1moves += 1
             if event.keysym == 'a' and adj_mat[node][node-1] == 0:
                 pos = future_pos(p1, 'W')
                 if pos > 0:
                     canvas.move(p1, -w, 0)
+                    p1moves += 1
             if event.keysym == 's' and adj_mat[node][node+cols] == 0:
                 pos = future_pos(p1, 'S')
                 if pos < 600:
                     canvas.move(p1, 0, w)
+                    p1moves += 1
             if event.keysym == 'd' and adj_mat[node][node+1] == 0:
                 pos = future_pos(p1, 'E')
                 if pos < 600:
                     canvas.move(p1, w, 0)
+                    p1moves += 1
             break
         except NameError:
             break
 
 def move_p2(event):
+    global p2moves
     while True:
         try:
             cols = int(600 / w)
@@ -221,18 +237,22 @@ def move_p2(event):
                 pos = future_pos(p2, 'N')
                 if pos > 0:
                     canvas.move(p2, 0, -w)
+                    p2moves += 1
             if event.keysym == 'Left' and adj_mat[node][node-1] == 0:
                 pos = future_pos(p2, 'W')
                 if pos > 0:
                     canvas.move(p2, -w, 0)
+                    p2moves += 1
             if event.keysym == 'Down' and adj_mat[node][node+cols] == 0:
                 pos = future_pos(p2, 'S')
                 if pos < 600:
                     canvas.move(p2, 0, w)
+                    p2moves += 1
             if event.keysym == 'Right' and adj_mat[node][node+1] == 0:
                 pos = future_pos(p2, 'E')
                 if pos < 600:
                     canvas.move(p2, w, 0)
+                    p2moves += 1
             break
         except NameError:
             break

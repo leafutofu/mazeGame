@@ -259,13 +259,16 @@ class spGame(Page): #singleplayer game screen
         label.grid(row=0, column=0, padx=10, pady=10)
         
         def back_button():
+            self.update = False
             controller.pages['spOptions'].show()
         
         back_button = ctk.CTkButton(self, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 15), text="demo bck", command=back_button)
 
-        back_button.grid(row=0, column=0, padx=(0,465))    
+        back_button.grid(row=0, column=0, padx=(0,465))
 
     def spGameCanvas(self):
+
+        self.update = True
 
         game_frame = ctk.CTkFrame(self, width=600, height=600)
         game_frame.grid(row=1, column=0, padx = 150)
@@ -279,10 +282,20 @@ class spGame(Page): #singleplayer game screen
             algo.graph.Hunt_and_Kill()
         elif params[1] == 'Sidewinder':
             algo.graph.Sidewinder()
-           
+
         algo.draw_maze()
         algo.draw_player('single')
-        
+        algo.p1moves = 0
+
+        def spUpdate():
+            if algo.detect_win('single'):
+                print('dog')
+            if self.update == True:
+                print(algo.get_moves('single'))
+                root.after(100, spUpdate)
+
+        root.after(0, spUpdate)
+    
 
 class mpGame(Page): #multiplayer game screen
     def __init__(self, controller, *args, **kwargs):
@@ -358,7 +371,6 @@ class Window(ctk.CTkFrame): #create main window
         
         #show the first set of widgets - the main menu widgets on startup
         mm.show()
-    
 
 if __name__ == "__main__":
     #initialises the tkinter window
@@ -368,7 +380,7 @@ if __name__ == "__main__":
     root.wm_geometry("900x700") #window size
     root.wm_title('Hedge') #window title
     root.wm_iconbitmap('assets/icon.ico') #window icon
-    #root.wm_resizable(False, False) #makes window a fixed size
+    root.wm_resizable(False, False) #makes window a fixed size
 
     root.bind('<w>', algo.move_p1)
     root.bind('<a>', algo.move_p1)
