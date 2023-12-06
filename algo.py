@@ -203,6 +203,7 @@ def detect_win(mode):
         if len(order_list) == 2:
             return order_list
         return False
+
 def get_moves(mode):
     return p1moves if mode == 'single' else [p1moves, p2moves]
 
@@ -236,7 +237,7 @@ def move_p1(event):
         except NameError:
             break
 
-def move_p2(event):
+def move_p2(event): 
     global p2moves
     while True:
         try:
