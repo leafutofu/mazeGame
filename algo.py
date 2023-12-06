@@ -133,7 +133,6 @@ def draw_maze():
     cols = int(600 / w)
     linewidth = 3
     line_colour = '#44612d'
-    print(cols)
     canvas.delete("all")
     for node in range(cols**2):
         directions = [(0, 1, 'R'), (0, -1, 'L'), (1, 0, 'B'), (-1, 0, 'T')]
@@ -152,7 +151,7 @@ def draw_maze():
                         canvas.create_line(c * w, r * w, (c + 1) * w, r * w, width=linewidth, fill=line_colour)
             except IndexError:
                 pass
-    canvas.create_rectangle((cols-1)*w+5, (cols-1)*w+5, cols*w-5, cols*w-5, fill='green')
+    canvas.create_rectangle((cols-1)*w+4, (cols-1)*w+4, cols*w-4, cols*w-4, fill='green')
 
 def draw_player(mode):
     global p1, p2
@@ -188,12 +187,22 @@ def future_pos(player, direction):
         return x+w
 
 def detect_win(mode):
+    cols = int(600 / w)
+    p1coords = canvas.bbox(p1) #bounding box of players 
+    print(p1coords)
     if mode == 'single':
-        #player 1
-        pass
+        if p1coords[0] == p1coords[1] and (cols-1)*w + 2 <= p1coords[0] <= (cols-1)*w + 4:
+            return True
     elif mode == 'multi':
-        pass
-    
+        p2coords = canvas.bbox(p2)
+        order_list = []
+        if p1coords[0] == p1coords[1] and (cols-1)*w + 2 <= p1coords[0] <= (cols-1)*w + 4:
+            order_list.append('p1')
+        if p2coords[0] == p2coords[1] and (cols-1)*w + 2 <= p2coords[0] <= (cols-1)*w + 4:
+            order_list.append('p2')
+        if len(order_list) == 2:
+            return order_list
+        return False
 def get_moves(mode):
     return p1moves if mode == 'single' else [p1moves, p2moves]
 

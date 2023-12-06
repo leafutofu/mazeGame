@@ -39,7 +39,6 @@ class mainMenu(Page):
             controller.pages['modeSelection'].show() #shows widgets associated with the mode selection page
             
         def check_position(event): #checks the coordinates of any mouse click on the window, and according to parameters, redirects to either the settings page or terminates the program.
-            print( f'x: {event.x}, y: {event.y}')
             if page_stack == []: #if the page stack is empty - meaning it points to nothing, then we are at the main menu, and the settings button is at 'mm_settingsX, mm_settingsY', the exit button is at 'quitX, quitY'
                 if event.x >= mm_settingsX - 20 and event.x <= mm_settingsX + 20 \
                 and event.y >= mm_settingsY - 20 and event.y <= mm_settingsY + 20:
@@ -132,11 +131,13 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         s_frame.grid(row=0, column=0, padx=70, pady=(70,90))
 
         def combobox_callback(choice):
-            global params
-            if choice == -1:
-                params[0] = int(get_current_value())
+            global sp_params
+            if choice == 0:
+                sp_params = [] #creates sp_params if combobox is not selected and the start game button is pressed
+            elif choice == -1:
+                sp_params[0] = int(get_current_value())
             else:
-                params = [int(get_current_value()), choice]
+                sp_params = [int(get_current_value()), choice]
 
         title_label = ctk.CTkLabel(s_frame, text='-Singleplayer Options-', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35))
         title_label.grid(row=0, column=0, padx = (0, 10), pady=(20, 300))
@@ -171,9 +172,12 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         slider.grid(row=0, column=0, padx = (0, 0), pady=(110, 0))
 
         def spGame_button():
-            combobox_callback(-1)
-            sg.spGameCanvas()
-            controller.pages['spGame'].show()
+            if sp_params != []:
+                combobox_callback(-1)
+                sg.spGameCanvas()
+                controller.pages['spGame'].show()
+            else:
+                print('no combobox option selected')
 
         spGame_button = ctk.CTkButton(s_frame, fg_color='#75a050', hover_color='#3d5329', text='START', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30), border_width=2, border_color='#c7ced7', command=spGame_button)
         spGame_button.grid(row=0, column=0, padx=10, pady=(230, 0))
@@ -184,6 +188,8 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         back_button = ctk.CTkButton(self, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
 
         back_button.grid(row=0, column=0, padx=(0,460), pady=(0,494))
+
+        combobox_callback(0)
 
 class mpOptions(Page): #screen to select generation style and grid size for multiplayer
     def __init__(self, controller, *args, **kwargs):
@@ -199,11 +205,13 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         s_frame.grid(row=0, column=0, padx=70, pady=(70,90))
 
         def combobox_callback(choice):
-            global params
-            if choice == -1:
-                params[0] = int(get_current_value())
+            global mp_params
+            if choice == 0:
+                mp_params = [] #creates mp_params if combobox is not selected and the start game button is pressed
+            elif choice == -1:
+                mp_params[0] = int(get_current_value())
             else:
-                params = [int(get_current_value()), choice]
+                mp_params = [int(get_current_value()), choice]
 
         title_label = ctk.CTkLabel(s_frame, text='-Multiplayer Options-', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35))
         title_label.grid(row=0, column=0, padx = (0, 10), pady=(20, 300))
@@ -238,9 +246,12 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         slider.grid(row=0, column=0, padx = (0, 0), pady=(110, 0))
 
         def mpGame_button():
-            combobox_callback(-1)
-            mg.mpGameCanvas()
-            controller.pages['mpGame'].show()
+            if mp_params != []:
+                combobox_callback(-1)
+                mg.mpGameCanvas()
+                controller.pages['mpGame'].show()
+            else:
+                print('no combobox option selected')
 
         mpGame_button = ctk.CTkButton(s_frame, fg_color='#75a050', hover_color='#3d5329', text='START', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30), border_width=2, border_color='#c7ced7', command=mpGame_button)
         mpGame_button.grid(row=0, column=0, padx=10, pady=(230, 0))
@@ -251,9 +262,13 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         back_button = ctk.CTkButton(self, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
 
         back_button.grid(row=0, column=0, padx=(0,460), pady=(0,494))
+
+        combobox_callback(0)
 class spGame(Page): #singleplayer game screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
+
+        self.controller = controller
 
         label = ctk.CTkLabel(self, text="Singleplayer Game", text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25))
         label.grid(row=0, column=0, padx=10, pady=10)
@@ -274,13 +289,13 @@ class spGame(Page): #singleplayer game screen
         game_frame.grid(row=1, column=0, padx = 150)
 
         algo.create_canvas(game_frame)
-        algo.graph = algo.Graph(params[0])
+        algo.graph = algo.Graph(sp_params[0])
      
-        if params[1] == 'Depth First Search':
+        if sp_params[1] == 'Depth First Search':
             algo.graph.DFS()
-        elif params[1] == 'Hunt-and-Kill':
+        elif sp_params[1] == 'Hunt-and-Kill':
             algo.graph.Hunt_and_Kill()
-        elif params[1] == 'Sidewinder':
+        elif sp_params[1] == 'Sidewinder':
             algo.graph.Sidewinder()
 
         algo.draw_maze()
@@ -289,7 +304,8 @@ class spGame(Page): #singleplayer game screen
 
         def spUpdate():
             if algo.detect_win('single'):
-                print('dog')
+                self.update = False
+                self.controller.pages['spResults'].show()
             if self.update == True:
                 print(algo.get_moves('single'))
                 root.after(100, spUpdate)
@@ -300,6 +316,9 @@ class spGame(Page): #singleplayer game screen
 class mpGame(Page): #multiplayer game screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
+
+        self.controller = controller
+
         label = ctk.CTkLabel(self, text="Multiplayer Game", text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25))
         label.grid(row=0, column=0, padx=10, pady=10)
 
@@ -312,21 +331,36 @@ class mpGame(Page): #multiplayer game screen
 
     def mpGameCanvas(self):
 
+        self.update = True
+
         game_frame = ctk.CTkFrame(self, width=600, height=600)
         game_frame.grid(row=1, column=0, padx = 150)
 
         algo.create_canvas(game_frame)
-        algo.graph = algo.Graph(params[0])
+        algo.graph = algo.Graph(mp_params[0])
      
-        if params[1] == 'Depth First Search':
+        if mp_params[1] == 'Depth First Search':
             algo.graph.DFS()
-        elif params[1] == 'Hunt-and-Kill':
+        elif mp_params[1] == 'Hunt-and-Kill':
             algo.graph.Hunt_and_Kill()
-        elif params[1] == 'Sidewinder':
+        elif mp_params[1] == 'Sidewinder':
             algo.graph.Sidewinder()
            
         algo.draw_maze()
         algo.draw_player('multi')
+
+        algo.p1moves = 0
+        algo.p2moves = 0
+
+        def mpUpdate():
+            if algo.detect_win('multi') != False:
+                self.update = False
+                self.controller.pages['mpResults'].show()
+            if self.update == True:
+                print(algo.get_moves('multi'))
+                root.after(100, mpUpdate)
+
+        root.after(0, mpUpdate)
 
 class spResults(Page): #singleplayer results screen
     def __init__(self, controller, *args, **kwargs):
@@ -334,17 +368,12 @@ class spResults(Page): #singleplayer results screen
         label = ctk.CTkLabel(self, text="Singleplayer Results")
         label.grid(row=0, column=0, padx=10, pady=10)
 
-        back_button = ctk.CTkButton(self, text="Back")
-        back_button.grid(row=0, column=0, padx=10, pady=10)
-
 class mpResults(Page): #multiplayer results screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
         label = ctk.CTkLabel(self, text="Multiplayer Results")
         label.grid(row=0, column=0, padx=10, pady=10)
         
-        back_button = ctk.CTkButton(self, text="Back")
-
 class Window(ctk.CTkFrame): #create main window
     def __init__(self, *args, **kwargs):
         ctk.CTkFrame.__init__(self, *args, **kwargs)
