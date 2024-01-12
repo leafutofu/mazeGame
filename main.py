@@ -220,6 +220,7 @@ class spOptions(Page): #screen to select generation style and grid size for sing
 class mpOptions(Page): #screen to select generation style and grid size for multiplayer
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
+        
         m_frame = ctk.CTkFrame(self)
         m_frame.grid(row=0, column=0, sticky='nsew')
 
@@ -290,6 +291,7 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         back_button.grid(row=0, column=0, padx=(0,460), pady=(0,494))
 
         combobox_callback(0)
+
 class spGame(Page): #singleplayer game screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
@@ -339,8 +341,6 @@ class spGame(Page): #singleplayer game screen
                 root.after(100, spUpdate)
 
         root.after(0, spUpdate)
-        
-
 class mpGame(Page): #multiplayer game screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)

@@ -243,7 +243,7 @@ def move_p1(event):
         except NameError:
             break
 
-def move_p2(event):
+def move_p2(event): 
     global p2moves
     while True:
         try:
