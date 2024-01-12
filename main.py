@@ -341,6 +341,7 @@ class spGame(Page): #singleplayer game screen
                 root.after(100, spUpdate)
 
         root.after(0, spUpdate)
+
 class mpGame(Page): #multiplayer game screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
