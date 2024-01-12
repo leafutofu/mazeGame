@@ -18,7 +18,7 @@ class Graph:
                 self.add_edge(node, node+self.size)
             if node-self.size >= 0:
                 self.add_edge(node, node-self.size)
-     
+    
     def add_edge(self, node1, node2):
         adj_mat[node1][node2] = 1
         adj_mat[node2][node1] = 1
@@ -126,29 +126,31 @@ class Graph:
 
 def create_canvas(frame):
     global canvas
-    canvas = ctk.CTkCanvas(frame, width=600, height=600, bg='#FFFFFF')
+    canvas = ctk.CTkCanvas(frame, width=600, height=600, bg='#0c1f13', highlightthickness=0)
     canvas.pack(anchor=ctk.CENTER, expand=True)
 
 def draw_maze():
     cols = int(600 / w)
-    linewidth = 3
-    line_colour = '#44612d'
+    linewidth = 4
+    line_colour = '#afbf8b'
     canvas.delete("all")
     for node in range(cols**2):
-        directions = [(0, 1, 'R'), (0, -1, 'L'), (1, 0, 'B'), (-1, 0, 'T')]
+        directions = [(0, 1, 'R'), (1, 0, 'B')]
         for dy, dx, direction in directions:
             try:
                 if adj_mat[node][node + dy * cols + dx] == 1:
                     r = node // cols #row number of current node
                     c = node % cols #column number of current node
                     if direction == 'R':
-                        canvas.create_line((c+1)*w, (r)*w, (c+1)*w, (r+1)*w, width=linewidth, fill=line_colour)
-                    elif direction == 'L':
-                        canvas.create_line(c * w, r * w, c * w, (r + 1) * w, width=linewidth, fill=line_colour)
+                        canvas.create_line((c+1)*w,
+                                           (r)*w-(linewidth/2),
+                                           (c+1)*w,
+                                           (r+1)*w+(linewidth/2), width=linewidth, fill=line_colour)
                     elif direction == 'B':
-                        canvas.create_line(c * w, (r + 1) * w, (c + 1) * w, (r + 1) * w, width=linewidth, fill=line_colour)
-                    elif direction == 'T':
-                        canvas.create_line(c * w, r * w, (c + 1) * w, r * w, width=linewidth, fill=line_colour)
+                        canvas.create_line(c * w-(linewidth/2),
+                                           (r + 1) * w,
+                                           (c + 1) * w+(linewidth/2),
+                                           (r + 1) * w, width=linewidth, fill=line_colour)
             except IndexError:
                 pass
     canvas.create_rectangle((cols-1)*w+4, (cols-1)*w+4, cols*w-4, cols*w-4, fill='green')
@@ -189,7 +191,6 @@ def future_pos(player, direction):
 def detect_win(mode):
     cols = int(600 / w)
     p1coords = canvas.bbox(p1) #bounding box of players 
-    print(p1coords)
     if mode == 'single':
         if p1coords[0] == p1coords[1] and (cols-1)*w + 2 <= p1coords[0] <= (cols-1)*w + 4:
             return True
@@ -203,6 +204,7 @@ def detect_win(mode):
         if len(order_list) == 2:
             return order_list
         return False
+
 def get_moves(mode):
     return p1moves if mode == 'single' else [p1moves, p2moves]
 
@@ -222,16 +224,21 @@ def move_p1(event):
                 if pos > 0:
                     canvas.move(p1, -w, 0)
                     p1moves += 1
-            if event.keysym == 's' and adj_mat[node][node+cols] == 0:
-                pos = future_pos(p1, 'S')
-                if pos < 600:
-                    canvas.move(p1, 0, w)
-                    p1moves += 1
-            if event.keysym == 'd' and adj_mat[node][node+1] == 0:
-                pos = future_pos(p1, 'E')
-                if pos < 600:
-                    canvas.move(p1, w, 0)
-                    p1moves += 1
+            while True:
+                try:
+                    if event.keysym == 's' and adj_mat[node][node+cols] == 0:
+                        pos = future_pos(p1, 'S')
+                        if pos < 600:
+                            canvas.move(p1, 0, w)
+                            p1moves += 1
+                    if event.keysym == 'd' and adj_mat[node][node+1] == 0:
+                        pos = future_pos(p1, 'E')
+                        if pos < 600:
+                            canvas.move(p1, w, 0)
+                            p1moves += 1
+                    break
+                except IndexError:
+                    break
             break
         except NameError:
             break
@@ -252,16 +259,21 @@ def move_p2(event):
                 if pos > 0:
                     canvas.move(p2, -w, 0)
                     p2moves += 1
-            if event.keysym == 'Down' and adj_mat[node][node+cols] == 0:
-                pos = future_pos(p2, 'S')
-                if pos < 600:
-                    canvas.move(p2, 0, w)
-                    p2moves += 1
-            if event.keysym == 'Right' and adj_mat[node][node+1] == 0:
-                pos = future_pos(p2, 'E')
-                if pos < 600:
-                    canvas.move(p2, w, 0)
-                    p2moves += 1
+            while True:
+                try:
+                    if event.keysym == 'Down' and adj_mat[node][node+cols] == 0:
+                        pos = future_pos(p2, 'S')
+                        if pos < 600:
+                            canvas.move(p2, 0, w)
+                            p2moves += 1
+                    if event.keysym == 'Right' and adj_mat[node][node+1] == 0:
+                        pos = future_pos(p2, 'E')
+                        if pos < 600:
+                            canvas.move(p2, w, 0)
+                            p2moves += 1
+                    break
+                except IndexError:
+                    break
             break
         except NameError:
             break

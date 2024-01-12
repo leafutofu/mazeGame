@@ -1,7 +1,13 @@
 import customtkinter as ctk #for GUI
+import pywinstyles
+import time
 import algo
 from tkinter.messagebox import askyesno #for pop-up box when exiting the program
 from PIL import Image #to import images for buttons and backgrounds
+
+theme = 'light'
+ctk.set_appearance_mode(theme)
+ctk.set_default_color_theme("assets/HEDGE.json") 
 
 class Page(ctk.CTkFrame): #all page classes (e.g. mainMenu, modeSelection etc.) inherit this class
     def __init__(self, *args, **kwargs):
@@ -16,12 +22,32 @@ class mainMenu(Page):
         global cur_page
         cur_page = 'mainMenu' #set current page to 'mainMenu'
 
-        frame_mm = ctk.CTkFrame(self) #create a frame for the menu
-        frame_mm.grid(row=0, column=0, sticky='nsew')
+        frame = ctk.CTkFrame(self) #create a frame for the menu
+        frame.pack(side='top', expand=True, fill = 'both')
         
-        bg1 = ctk.CTkImage(Image.open('assets/bg.png'), size=(900, 700)) #import background image
-        bg1label = ctk.CTkLabel(frame_mm, image = bg1, text = '') #create label to place background image
-        bg1label.grid(row=0, column=0)
+        if theme == 'light':
+            bg1 = ctk.CTkImage(Image.open('assets/grad1bg.png'), size=(1920, 1080)) #import background image
+            bg2 = ctk.CTkImage(Image.open('assets/bg1.png'), size=(900, 700))
+        else:
+            bg1 = ctk.CTkImage(Image.open('assets/grad2bg.png'), size=(1920, 1080)) #import background image
+            bg2 = ctk.CTkImage(Image.open('assets/bg2.png'), size=(900, 700))
+        self.bg1label = ctk.CTkLabel(frame, image = bg1, text = '') #create label to place background image
+        self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
+
+        sframe = ctk.CTkFrame(frame, height=700, width=900, corner_radius=0)
+        sframe.place(relx=0.5, rely=0.5, anchor='center')
+
+        self.bg2label = ctk.CTkLabel(sframe, image = bg2, text = '')
+        self.bg2label.place(relx=0.5, rely=0.5, anchor='center')
+
+        title = ctk.CTkLabel(sframe, text='HEDGE', font=('Upheaval TT (BRK)', 120))
+        title.place(relx=0.5, rely=0.38, anchor='center')
+
+        #quit_button_label = ctk.CTkLabel(sframe, image = ctk.CTkImage(Image.open('assets/quit.png'), size=(43, 43)), text = '')
+        #quit_button_label.place(relx=0.54, rely=0.875, anchor='center')
+
+        #settings_button_label = ctk.CTkLabel(sframe, image = ctk.CTkImage(Image.open('assets/settings.png'), size=(43, 43)), text = '')
+        #settings_button_label.place(relx=0.46, rely=0.875, anchor='center')        
 
         #coordinates of various buttons
         mm_settingsX = 410
@@ -39,6 +65,7 @@ class mainMenu(Page):
             controller.pages['modeSelection'].show() #shows widgets associated with the mode selection page
             
         def check_position(event): #checks the coordinates of any mouse click on the window, and according to parameters, redirects to either the settings page or terminates the program.
+            print(event)
             if page_stack == []: #if the page stack is empty - meaning it points to nothing, then we are at the main menu, and the settings button is at 'mm_settingsX, mm_settingsY', the exit button is at 'quitX, quitY'
                 if event.x >= mm_settingsX - 20 and event.x <= mm_settingsX + 20 \
                 and event.y >= mm_settingsY - 20 and event.y <= mm_settingsY + 20:
@@ -56,17 +83,13 @@ class mainMenu(Page):
 
         root.bind('<Button-1>', check_position) #binds the left mouse click to the check_position() function
 
-        modeSelection_image = ctk.CTkImage(Image.open("assets/modeSelection.png"), size=(95, 20)) #import image for button
         #button styling
-        modeSelection_button = ctk.CTkButton(frame_mm, width=170, height=50, fg_color='#98a778', background_corner_colors=('#304c29','#35502c','#59743e','#59743e'), hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text='', image=modeSelection_image, command=modeSelection_button)
-        modeSelection_button.grid(row=0, column=0, sticky='s', pady=(0,275))
+        modeSelection_button = ctk.CTkButton(sframe, width=170, height=50, corner_radius=8, border_width=2, text_color='#FFFFFF', font=('Upheaval TT (BRK)', 40), text='PLAY', command=modeSelection_button)
+        modeSelection_button.place(relx=0.5, rely=0.57, anchor='center')
 
 class settings(Page):
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
-
-        label = ctk.CTkLabel(self, text="Settings")
-        label.grid(row=0, column=0)
 
         bg4 = ctk.CTkImage(Image.open('assets/bg4.png'), size=(900, 700)) 
         bg4label = ctk.CTkLabel(self, image = bg4, text = '')
@@ -87,9 +110,9 @@ class modeSelection(Page): #selects singleplayer or multiplayer
         frame_ms = ctk.CTkFrame(self) #creates frame for the mode selection page
         frame_ms.grid(row=0, column=0, sticky='nsew')
 
-        bg2 = ctk.CTkImage(Image.open('assets/bg2.png'), size=(900, 700)) #
-        bg2label = ctk.CTkLabel(frame_ms, image = bg2, text = '')
-        bg2label.grid(row=0, column=0)
+        #bg2 = ctk.CTkImage(Image.open('assets/bg2.png'), size=(900, 700)) #
+        #bg2label = ctk.CTkLabel(frame_ms, image = bg2, text = '')
+        #bg2label.grid(row=0, column=0)
 
         def spOptions_button():
             controller.pages['spOptions'].show()
@@ -119,13 +142,14 @@ class modeSelection(Page): #selects singleplayer or multiplayer
 class spOptions(Page): #screen to select generation style and grid size for singleplayer
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
+        global sp_time_start
 
         m_frame = ctk.CTkFrame(self)
         m_frame.grid(row=0, column=0, sticky='nsew')
 
-        bg3 = ctk.CTkImage(Image.open('assets/bg3.png'), size=(900, 700)) 
-        bg3label = ctk.CTkLabel(m_frame, image = bg3, text = '')
-        bg3label.grid(row=0, column=0)
+        #bg3 = ctk.CTkImage(Image.open('assets/bg3.png'), size=(900, 700)) 
+        #bg3label = ctk.CTkLabel(m_frame, image = bg3, text = '')
+        #bg3label.grid(row=0, column=0)
 
         s_frame = ctk.CTkFrame(m_frame, width=900, height=650, fg_color='#82925e', border_width=2, border_color='#c7ced7')
         s_frame.grid(row=0, column=0, padx=70, pady=(70,90))
@@ -172,9 +196,11 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         slider.grid(row=0, column=0, padx = (0, 0), pady=(110, 0))
 
         def spGame_button():
+            global sp_time_start
             if sp_params != []:
                 combobox_callback(-1)
                 sg.spGameCanvas()
+                sp_time_start = time.time()
                 controller.pages['spGame'].show()
             else:
                 print('no combobox option selected')
@@ -282,7 +308,7 @@ class spGame(Page): #singleplayer game screen
         back_button.grid(row=0, column=0, padx=(0,465))
 
     def spGameCanvas(self):
-
+        global sp_time_end
         self.update = True
 
         game_frame = ctk.CTkFrame(self, width=600, height=600)
@@ -303,15 +329,17 @@ class spGame(Page): #singleplayer game screen
         algo.p1moves = 0
 
         def spUpdate():
+            global sp_time_end
             if algo.detect_win('single'):
                 self.update = False
+                sp_time_end = time.time()
+                sr.results()
                 self.controller.pages['spResults'].show()
             if self.update == True:
-                print(algo.get_moves('single'))
                 root.after(100, spUpdate)
 
         root.after(0, spUpdate)
-    
+        
 
 class mpGame(Page): #multiplayer game screen
     def __init__(self, controller, *args, **kwargs):
@@ -357,7 +385,6 @@ class mpGame(Page): #multiplayer game screen
                 self.update = False
                 self.controller.pages['mpResults'].show()
             if self.update == True:
-                print(algo.get_moves('multi'))
                 root.after(100, mpUpdate)
 
         root.after(0, mpUpdate)
@@ -366,7 +393,13 @@ class spResults(Page): #singleplayer results screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
         label = ctk.CTkLabel(self, text="Singleplayer Results")
-        label.grid(row=0, column=0, padx=10, pady=10)
+        label.grid(row=0, column=1, padx=10, pady=10)
+    
+    def results(self):
+        steps = ctk.CTkLabel(self, text=f'Moves = {algo.get_moves("single")}', font=('Upheaval TT (BRK)', 25))
+        steps.grid(row=1, column=1)
+        time = ctk.CTkLabel(self, text=f'Time = {round(sp_time_end - sp_time_start, 3)} s', font=('Upheaval TT (BRK)', 25))
+        time.grid(row=2, column=1)
 
 class mpResults(Page): #multiplayer results screen
     def __init__(self, controller, *args, **kwargs):
@@ -379,7 +412,7 @@ class Window(ctk.CTkFrame): #create main window
         ctk.CTkFrame.__init__(self, *args, **kwargs)
 
         #variables for a dynamic back button
-        global page_stack, cur_page, sg, mg
+        global page_stack, cur_page, sg, mg, sr, mr
         page_stack = [] 
         cur_page = ''
 
@@ -394,22 +427,55 @@ class Window(ctk.CTkFrame): #create main window
         container = ctk.CTkFrame(self)
         container.pack(side="top", fill="both", expand=True)
 
-        #place all of the widgets onto the frame
+        #place all of the widgets i nto the frame
         for window in self.pages.values():
             window.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
         
         #show the first set of widgets - the main menu widgets on startup
         mm.show()
 
+        #
+        #
+        # Temp 
+        secondary_window = ctk.CTkToplevel()
+        secondary_window.title("Controls")
+        secondary_window.config(width=300, height=200)
+        secondary_window.focus()
+        #
+        #
+        #
+
+        def switch_theme():
+            global theme
+            if theme == 'light':
+                theme = 'dark'
+                mm.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2bg.png'), size=(1920, 1080)))
+                mm.bg2label.configure(image=ctk.CTkImage(Image.open('assets/bg2.png'), size=(900, 700)))
+            else:
+                theme = 'light'
+                mm.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1bg.png'), size=(1920, 1080)))
+                mm.bg2label.configure(image=ctk.CTkImage(Image.open('assets/bg1.png'), size=(900, 700)))
+            ctk.set_appearance_mode(theme)
+
+        #
+        #
+        # Temp
+        theme_button = ctk.CTkButton(secondary_window, text='switch theme', command=switch_theme)
+        theme_button.place(relx = 0.5, rely = 0.5, anchor = 'center')
+        #
+        #
+        #
+
 if __name__ == "__main__":
     #initialises the tkinter window
     root = ctk.CTk()
+    #pywinstyles.apply_style(root, "acrylic")
     main = Window(root)
     main.pack(side="top", fill="both", expand=True)
-    root.wm_geometry("900x700") #window size
-    root.wm_title('Hedge') #window title
-    root.wm_iconbitmap('assets/icon.ico') #window icon
-    root.wm_resizable(False, False) #makes window a fixed size
+    root.geometry("900x700") #window size
+    root.title('Hedge') #window title
+    root.iconbitmap('assets/icon.ico') #window icon
+    #root.wm_resizable(False, False) #makes window a fixed size
 
     root.bind('<w>', algo.move_p1)
     root.bind('<a>', algo.move_p1)
@@ -420,6 +486,14 @@ if __name__ == "__main__":
     root.bind('<Left>', algo.move_p2)
     root.bind('<Down>', algo.move_p2)
     root.bind('<Right>', algo.move_p2)
+
+    def toggle_fullscreen(event=None):
+        root.attributes("-fullscreen", True)
+    def end_fullscreen(event=None):
+        root.attributes("-fullscreen", False)
+    
+    root.bind("<F11>", toggle_fullscreen)
+    root.bind("<Escape>", end_fullscreen)
     
     root.mainloop()
 
