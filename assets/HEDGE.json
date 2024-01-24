@@ -20,10 +20,10 @@
     ],
     "top_fg_color": [
       "#afbf8b",
-      "#112418"
+      "#0c1f13"
     ],
     "border_color": [
-      "#3d452c",
+      "#96a672",
       "#16291d"
     ]
   },
@@ -56,7 +56,7 @@
     "fg_color": "transparent",
     "text_color": [
       "#82925e",
-      "#34473b"
+      "#ffffff"
     ],
     "text_color_disabled": [
       "#ffffff",
@@ -177,7 +177,7 @@
     "corner_radius": 6,
     "border_width": 2,
     "fg_color": [
-      "#2e435c",
+      "#43564a",
       "#203327"
     ],
     "border_color": [
@@ -312,7 +312,7 @@
     "date created": "Dec 25 2023 17:39:13",
     "last modified by": "Lifu Yang",
     "created with": "CTk Theme Builder v2.5.1",
-    "last modified": "Jan 11 2024 00:49:41",
+    "last modified": "Jan 12 2024 23:17:44",
     "keystone colour": "#3c5064",
     "harmony method": "Tetradic",
     "harmony differential": null,

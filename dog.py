@@ -1,2 +1,3 @@
-import tkinter
+import customtkinter as ctk
+import dog2
 

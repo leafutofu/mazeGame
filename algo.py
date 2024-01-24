@@ -124,6 +124,9 @@ class Graph:
                     #carve east
                     self.remove_edge(self.size*row+node, self.size*row+node+1)
 
+    def AStar(self):
+        pass
+
 def create_canvas(frame):
     global canvas
     canvas = ctk.CTkCanvas(frame, width=600, height=600, bg='#0c1f13', highlightthickness=0)
@@ -131,7 +134,7 @@ def create_canvas(frame):
 
 def draw_maze():
     cols = int(600 / w)
-    linewidth = 4
+    linewidth = 2
     line_colour = '#afbf8b'
     canvas.delete("all")
     for node in range(cols**2):
@@ -143,7 +146,7 @@ def draw_maze():
                     c = node % cols #column number of current node
                     if direction == 'R':
                         canvas.create_line((c+1)*w,
-                                           (r)*w-(linewidth/2),
+                                           r * w-(linewidth/2),
                                            (c+1)*w,
                                            (r+1)*w+(linewidth/2), width=linewidth, fill=line_colour)
                     elif direction == 'B':
@@ -153,12 +156,12 @@ def draw_maze():
                                            (r + 1) * w, width=linewidth, fill=line_colour)
             except IndexError:
                 pass
-    canvas.create_rectangle((cols-1)*w+4, (cols-1)*w+4, cols*w-4, cols*w-4, fill='green')
+    canvas.create_text(int(w*(cols-0.5)), int(w*(cols-0.5)), font=('Upheaval TT (BRK)', int(300/cols)), text='X', fill='white')
 
 def draw_player(mode):
     global p1, p2
     if mode == 'single':
-        p1 = canvas.create_rectangle(4, 4, w-4, w-4, fill='red')
+        p1 = canvas.create_rectangle(4, 4, w-4, w-4, fill='#f0b163')
     if mode == 'multi':
         p1 = canvas.create_rectangle(4, 4, w-4, w-4, fill='red')
         p2 = canvas.create_rectangle(4, 4, w-4, w-4, fill='blue')
@@ -204,6 +207,9 @@ def detect_win(mode):
         if len(order_list) == 2:
             return order_list
         return False
+    
+def draw_solution():
+    pass
 
 def get_moves(mode):
     return p1moves if mode == 'single' else [p1moves, p2moves]
