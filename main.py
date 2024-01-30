@@ -1,9 +1,9 @@
 import customtkinter as ctk #for GUI
-import pywinstyles
+#import pywinstyles
 import time
 import algo
 from tkinter.messagebox import askyesno #for pop-up box when exiting the program
-from PIL import Image #to import images for buttons and backgrounds
+from PIL import Image, ImageTk #to import images for buttons and backgrounds
 
 theme = 'system'
 ctk.set_appearance_mode(theme)
@@ -218,8 +218,6 @@ class spOptions(Page): #screen to select generation style and grid size for sing
             controller.pages['modeSelection'].show()
         
         back_button = ctk.CTkButton(m_frame, height=40, corner_radius=8, border_width=3, text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
-
-        #back_button.grid(row=0, column=0, padx=(0,460), pady=(0,494))
         back_button.grid(row=0, column=0, padx=(0,536), pady=(0,494))
 
         combobox_callback(0)
@@ -313,26 +311,50 @@ class spGame(Page): #singleplayer game screen
         self.bg1label = ctk.CTkLabel(self, image = bg_game, text = '') #create label to place background image
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
 
-        label = ctk.CTkLabel(self, text="Singleplayer Game", text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25))
-        label.place(relx=0.5, rely=0.1, anchor='center')
-
-        algo_label = ctk.CTkLabel(self, text='Algorithm', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25))
-        grid_label = ctk.CTkLabel(self, text='Grid size', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25))
-        step_label = ctk.CTkLabel(self, text='Steps made', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25))
-        time_label = ctk.CTkLabel(self, text='Elapsed time', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25))
+        title_frame = ctk.CTkFrame(self)
+        title_frame.place(relx=0.5, rely=0.1, anchor='center')
+        title = ctk.CTkLabel(title_frame, text=" HEDGE ", text_color='#4a6f3e', font=('Upheaval TT (BRK)', 80))
+        subheading = ctk.CTkLabel(title_frame, text="SINGLEPLAYER ", text_color='#FFFFFF', font=('Upheaval TT (BRK)', 40, 'italic'))
+        title.pack()
+        subheading.pack()
         
-        algo_label.place(relx=0.16, rely=0.45, anchor='e')
-        grid_label.place(relx=0.16, rely=0.55, anchor='e')
-        step_label.place(relx=0.84, rely=0.45)
-        time_label.place(relx=0.84, rely=0.55)
+        #frame to contain gui information on left
+        left_frame = ctk.CTkFrame(self, height=228, width=380)
+        left_frame.place(relx=0.15, rely=0.495, anchor='center')
+        
+        left_image = ctk.CTkImage(Image.open("assets/game_left.png"), size=(191, 227))
+        left_image_label = ctk.CTkLabel(left_frame, text='', image=left_image)
+        left_image_label.place(relx=0, rely=0.5, anchor='w')
 
+        self.algo_label = ctk.CTkLabel(left_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35, 'italic'))
+        self.grid_label = ctk.CTkLabel(left_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35, 'italic'))
+        self.algo_label.place(x=150, rely=0.11)
+        self.grid_label.place(x=150, rely=0.61)
 
+        #
+
+        right_frame = ctk.CTkFrame(self, height=228, width=380)
+        right_frame.place(relx=0.85, rely=0.495, anchor='center')
+
+        right_image = ctk.CTkImage(Image.open('assets/sg_right.png'), size=(233, 227))
+        right_image_label = ctk.CTkLabel(right_frame, text='', image=right_image)
+        right_image_label.place(x=380, rely=0.5, anchor='e')
+    
+        self.step_label = ctk.CTkLabel(right_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 45, 'italic'))
+        self.time_label = ctk.CTkLabel(right_frame, text='', text_color='#4a6f3e', font=('Upheaval TT (BRK)', 45, 'italic'))
+        self.step_label.place(x=180, rely=0.145, anchor='e')
+        self.time_label.place(x=100, rely=0.655, anchor='w')
+
+        #
+        #a temporary back button
         def back_button():
             self.update = False
             controller.pages['spOptions'].show()
         
-        back_button = ctk.CTkButton(self, height=40, fg_color='#98a778', hover_color='#59743e', corner_radius=8, border_width=2, border_color='#FFFFFF', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 15), text="demo bck", command=back_button)
+        back_button = ctk.CTkButton(self, height=40, font=('Upheaval TT (BRK)', 15), text="demo bck", command=back_button)
         back_button.place(relx=0.2, rely=0.1, anchor='center')
+        #
+        #
 
     def spGameCanvas(self):
         global sp_time_end
@@ -343,14 +365,18 @@ class spGame(Page): #singleplayer game screen
 
         algo.create_canvas(game_frame)
         algo.graph = algo.Graph(sp_params[0])
+
+        self.grid_label.configure(text=f'{sp_params[0]} x {sp_params[0]}')
      
         if sp_params[1] == 'Depth First Search':
             algo.graph.DFS()
+            self.algo_label.configure(text='DFS')
         elif sp_params[1] == 'Hunt-and-Kill':
             algo.graph.Hunt_and_Kill()
+            self.algo_label.configure(text='Hunt - Kill')
         elif sp_params[1] == 'Sidewinder':
             algo.graph.Sidewinder()
-
+            self.algo_label.configure(text='Sidewinder')
          
         algo.draw_maze()
         algo.draw_player('single')
@@ -364,6 +390,8 @@ class spGame(Page): #singleplayer game screen
                 sr.results()
                 self.controller.pages['spResults'].show()
             if self.update == True:
+                self.step_label.configure(text=f'{algo.get_moves("single")}  ')
+                self.time_label.configure(text=f'{round(time.time()-sp_time_start, 1)}  ')
                 root.after(100, spUpdate)
 
         root.after(0, spUpdate)

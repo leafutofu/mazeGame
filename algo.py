@@ -129,7 +129,7 @@ class Graph:
 
 def create_canvas(frame):
     global canvas
-    canvas = ctk.CTkCanvas(frame, width=600, height=600, bg='#0c1f13', highlightthickness=0)
+    canvas = ctk.CTkCanvas(frame, width=600, height=600, bg='#0c1f13', highlightthickness=2, )
     canvas.pack(anchor=ctk.CENTER, expand=True)
 
 def draw_maze():
@@ -161,7 +161,7 @@ def draw_maze():
 def draw_player(mode):
     global p1, p2
     if mode == 'single':
-        p1 = canvas.create_rectangle(4, 4, w-4, w-4, fill='#f0b163')
+        p1 = canvas.create_rectangle(4, 4, w-4, w-4, fill='#4a6f3e', width=1, outline='white')
     if mode == 'multi':
         p1 = canvas.create_rectangle(4, 4, w-4, w-4, fill='red')
         p2 = canvas.create_rectangle(4, 4, w-4, w-4, fill='blue')
