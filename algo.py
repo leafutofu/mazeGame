@@ -128,11 +128,20 @@ class Graph:
         pass
 
 def create_canvas(frame):
-    global canvas
-    canvas = ctk.CTkCanvas(frame, width=600, height=600, bg='#0c1f13', highlightthickness=2, )
-    canvas.pack(anchor=ctk.CENTER, expand=True)
+    global canvas_m
+    canvas_m = ctk.CTkCanvas(frame, width=600, height=600, bg='#0c1f13', highlightthickness=2)
+    canvas_m.pack(anchor=ctk.CENTER, expand=True)
 
-def draw_maze():
+def clone_canvas(widget, frame):
+    # get the config of the canvas
+    cfg = {key: widget.cget(key) for key in widget.configure()}
+    # create new canvas using the config
+    cloned = ctk.CTkCanvas(frame, **cfg)
+    #cloned.configure(highlightthickness=0)
+    draw_maze(cloned)
+    cloned.pack(anchor=ctk.CENTER, expand=True)
+
+def draw_maze(canvas):
     cols = int(600 / w)
     linewidth = 2
     line_colour = '#afbf8b'
@@ -156,29 +165,42 @@ def draw_maze():
                                            (r + 1) * w, width=linewidth, fill=line_colour)
             except IndexError:
                 pass
-    canvas.create_text(int(w*(cols-0.5)), int(w*(cols-0.5)), font=('Upheaval TT (BRK)', int(300/cols)), text='X', fill='white')
+    if canvas == canvas_m:
+        canvas.create_text(int(w*(cols-0.5)), int(w*(cols-0.5)), font=('Upheaval TT (BRK)', int(300/cols)), text='X', fill='white')
 
 def draw_player(mode):
     global p1, p2
     if mode == 'single':
-        p1 = canvas.create_rectangle(4, 4, w-4, w-4, fill='#4a6f3e', width=1, outline='white')
+        p1 = canvas_m.create_rectangle(4, 4, w-4, w-4, fill='#6f3e4a', width=1, outline='white')
+        #6f3e4a purple
+        #4a6f3e green
     if mode == 'multi':
-        p1 = canvas.create_rectangle(4, 4, w-4, w-4, fill='red')
-        p2 = canvas.create_rectangle(4, 4, w-4, w-4, fill='blue')
+        p1 = canvas_m.create_rectangle(4, 4, w-4, w-4, fill='red')
+        p2 = canvas_m.create_rectangle(4, 4, w-4, w-4, fill='blue')
 
-def node_player(player): #returns the node the player is on given coordinates of top left corner of player on canvas
+def manhattan_distance(mode):
     cols = int(600 / w)
-    coords = canvas.bbox(player)
+    if mode == 'single':
+        coords = node_player(p1, 'manhattan')
+        return cols-coords[0] + cols-coords[1]
+
+
+def node_player(player, mode): #returns the node the player is on given coordinates of top left corner of player on canvas
+    cols = int(600 / w)
+    coords = canvas_m.bbox(player)
     x = coords[0] - 2
     y = coords[1] - 2
 
     node_x = int(x/w)
     node_y = int(y/w)
 
-    return node_y * cols + node_x
+    if mode == 'manhattan':
+        return [node_x+1, node_y+1]
+    else:
+        return node_y * cols + node_x
 
 def future_pos(player, direction):
-    coords = canvas.bbox(player)
+    coords = canvas_m.bbox(player)
     x = coords[0] - 2
     y = coords[1] - 2
 
@@ -193,12 +215,12 @@ def future_pos(player, direction):
 
 def detect_win(mode):
     cols = int(600 / w)
-    p1coords = canvas.bbox(p1) #bounding box of players 
+    p1coords = canvas_m.bbox(p1) #bounding box of players 
     if mode == 'single':
         if p1coords[0] == p1coords[1] and (cols-1)*w + 2 <= p1coords[0] <= (cols-1)*w + 4:
             return True
     elif mode == 'multi':
-        p2coords = canvas.bbox(p2)
+        p2coords = canvas_m.bbox(p2)
         order_list = []
         if p1coords[0] == p1coords[1] and (cols-1)*w + 2 <= p1coords[0] <= (cols-1)*w + 4:
             order_list.append('p1')
@@ -219,28 +241,28 @@ def move_p1(event):
     while True:
         try:
             cols = int(600 / w)
-            node = node_player(p1)
+            node = node_player(p1, -1)
             if event.keysym == 'w' and adj_mat[node][node-cols] == 0:
                 pos = future_pos(p1, 'N')
                 if pos > 0:
-                    canvas.move(p1, 0, -w)
+                    canvas_m.move(p1, 0, -w)
                     p1moves += 1
             if event.keysym == 'a' and adj_mat[node][node-1] == 0:
                 pos = future_pos(p1, 'W')
                 if pos > 0:
-                    canvas.move(p1, -w, 0)
+                    canvas_m.move(p1, -w, 0)
                     p1moves += 1
             while True:
                 try:
                     if event.keysym == 's' and adj_mat[node][node+cols] == 0:
                         pos = future_pos(p1, 'S')
                         if pos < 600:
-                            canvas.move(p1, 0, w)
+                            canvas_m.move(p1, 0, w)
                             p1moves += 1
                     if event.keysym == 'd' and adj_mat[node][node+1] == 0:
                         pos = future_pos(p1, 'E')
                         if pos < 600:
-                            canvas.move(p1, w, 0)
+                            canvas_m.move(p1, w, 0)
                             p1moves += 1
                     break
                 except IndexError:
@@ -254,28 +276,28 @@ def move_p2(event):
     while True:
         try:
             cols = int(600 / w)
-            node = node_player(p2)
+            node = node_player(p2, -1)
             if event.keysym == 'Up' and adj_mat[node][node-cols] == 0:
                 pos = future_pos(p2, 'N')
                 if pos > 0:
-                    canvas.move(p2, 0, -w)
+                    canvas_m.move(p2, 0, -w)
                     p2moves += 1
             if event.keysym == 'Left' and adj_mat[node][node-1] == 0:
                 pos = future_pos(p2, 'W')
                 if pos > 0:
-                    canvas.move(p2, -w, 0)
+                    canvas_m.move(p2, -w, 0)
                     p2moves += 1
             while True:
                 try:
                     if event.keysym == 'Down' and adj_mat[node][node+cols] == 0:
                         pos = future_pos(p2, 'S')
                         if pos < 600:
-                            canvas.move(p2, 0, w)
+                            canvas_m.move(p2, 0, w)
                             p2moves += 1
                     if event.keysym == 'Right' and adj_mat[node][node+1] == 0:
                         pos = future_pos(p2, 'E')
                         if pos < 600:
-                            canvas.move(p2, w, 0)
+                            canvas_m.move(p2, w, 0)
                             p2moves += 1
                     break
                 except IndexError:

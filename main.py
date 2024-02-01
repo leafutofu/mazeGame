@@ -1,5 +1,5 @@
 import customtkinter as ctk #for GUI
-#import pywinstyles
+import pywinstyles
 import time
 import algo
 from tkinter.messagebox import askyesno #for pop-up box when exiting the program
@@ -341,9 +341,15 @@ class spGame(Page): #singleplayer game screen
         right_image_label.place(x=380, rely=0.5, anchor='e')
     
         self.step_label = ctk.CTkLabel(right_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 45, 'italic'))
-        self.time_label = ctk.CTkLabel(right_frame, text='', text_color='#4a6f3e', font=('Upheaval TT (BRK)', 45, 'italic'))
-        self.step_label.place(x=180, rely=0.145, anchor='e')
-        self.time_label.place(x=100, rely=0.655, anchor='w')
+        self.time_label = ctk.CTkLabel(right_frame, text='', text_color='#4a6f3e', font=('Upheaval TT (BRK)', 50, 'italic'))
+        #6f3e4a
+        self.step_label.place(x=100, rely=0.145, anchor='w')
+        self.time_label.place(x=100, rely=0.645, anchor='w')
+
+        self.progress = ctk.CTkProgressBar(self, width=600, height=5, corner_radius=5)
+        self.progress.set(0)
+        self.progress.place(relx=0.5, rely=0.9, anchor='center')
+
 
         #
         #a temporary back button
@@ -366,7 +372,7 @@ class spGame(Page): #singleplayer game screen
         algo.create_canvas(game_frame)
         algo.graph = algo.Graph(sp_params[0])
 
-        self.grid_label.configure(text=f'{sp_params[0]} x {sp_params[0]}')
+        self.grid_label.configure(text=f'{sp_params[0]} x {sp_params[0]} ')
      
         if sp_params[1] == 'Depth First Search':
             algo.graph.DFS()
@@ -376,9 +382,9 @@ class spGame(Page): #singleplayer game screen
             self.algo_label.configure(text='Hunt - Kill')
         elif sp_params[1] == 'Sidewinder':
             algo.graph.Sidewinder()
-            self.algo_label.configure(text='Sidewinder')
+            self.algo_label.configure(text='Sidewinder ')
          
-        algo.draw_maze()
+        algo.draw_maze(algo.canvas_m)
         algo.draw_player('single')
         algo.p1moves = 0
 
@@ -390,6 +396,7 @@ class spGame(Page): #singleplayer game screen
                 sr.results()
                 self.controller.pages['spResults'].show()
             if self.update == True:
+                self.progress.set(1-(algo.manhattan_distance('single')/(2*sp_params[0])))
                 self.step_label.configure(text=f'{algo.get_moves("single")}  ')
                 self.time_label.configure(text=f'{round(time.time()-sp_time_start, 1)}  ')
                 root.after(100, spUpdate)
@@ -455,6 +462,20 @@ class spResults(Page): #singleplayer results screen
         steps.grid(row=1, column=1)
         time = ctk.CTkLabel(self, text=f'Time = {round(sp_time_end - sp_time_start, 3)} s', font=('Upheaval TT (BRK)', 25))
         time.grid(row=2, column=1)
+        
+        canvas_frame = ctk.CTkFrame(self, width=600, height = 600)
+        algo.clone_canvas(algo.canvas_m, canvas_frame)
+
+        button_frame = ctk.CTkFrame(self, width=600, height = 600, fg_color=('#96a672', '#16291d'))
+        button_frame.place(relx=0.7, rely=0.5, anchor='center')
+
+        def show_canvas():
+            button_frame.place_forget()
+            canvas_frame.place(relx=0.7, rely=0.5, anchor='center')
+
+        button = ctk.CTkButton(button_frame, height=35, text='Reveal solution', font=('Upheaval TT (BRK)', 25), command=show_canvas)
+        button.place(x=300, y=300, anchor='center')
+
 
 class mpResults(Page): #multiplayer results screen
     def __init__(self, controller, *args, **kwargs):
@@ -571,5 +592,3 @@ if __name__ == "__main__":
     root.bind("<Escape>", end_fullscreen)
     
     root.mainloop()
-
-    
