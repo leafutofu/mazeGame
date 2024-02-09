@@ -69,7 +69,7 @@ class mainMenu(Page):
             controller.pages['modeSelection'].show() #shows widgets associated with the mode selection page
             
         def check_position(event): #checks the coordinates of any mouse click on the window, and according to parameters, redirects to either the settings page or terminates the program.
-            print(event)
+            #print(event)
             if page_stack == []: #if the page stack is empty - meaning it points to nothing, then we are at the main menu, and the settings button is at 'mm_settingsX, mm_settingsY', the exit button is at 'quitX, quitY'
                 if event.x >= mm_settingsX - 20 and event.x <= mm_settingsX + 20 \
                 and event.y >= mm_settingsY - 20 and event.y <= mm_settingsY + 20:
@@ -97,6 +97,14 @@ class settings(Page):
 
         self.bg1label = ctk.CTkLabel(self, image = bg1, text = '') #create label to place background image
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
+
+        
+        #CHANGE THEME
+        theme_button = ctk.CTkButton(self, text='switch theme', command=switch_theme)
+        theme_button.place(relx = 0.5, rely = 0.5, anchor = 'center')
+        #MAGE GEN STYLE IE PERFECT AND IMPERFECT MAZES
+        #MODE - PRESS Q TO RETURN TO START COSTING 10 MOVES
+        #MODE - FORCIBLY CAUSE OTHER PLAYER TO RETURN TO START BY OVERLAPPING
 
 
         def back_button(): #directs to either the main menu or mode selection page depending on the contents of the page stack
@@ -540,6 +548,7 @@ class Results(Page): #singleplayer results screen
         
         canvas_frame = ctk.CTkFrame(self, width=600, height = 600)
         algo.clone_canvas(algo.canvas_m, canvas_frame)
+        algo.cloned.tag_lower(algo.cloned.create_rectangle(600-algo.w, 600-algo.w, 600, 600, width = 0, fill='#473D5A'))
 
         button_frame = ctk.CTkFrame(self, width=600, height = 600, fg_color=('#96a672', '#16291d'))
         button_frame.place(relx=0.7, rely=0.5, anchor='center')
@@ -574,7 +583,7 @@ class Results(Page): #singleplayer results screen
                             if dy == 1 and (node+1) > size**2:
                                 p = False
                             if dy == -1 and cur_node < size:    
-                                p = False   
+                                p = False
                             if p == True:
                                 if algo.graph.detect_wall(cur_node, node) == False:
                                     child_node = node
@@ -585,7 +594,6 @@ class Results(Page): #singleplayer results screen
                                         g_score[child_node]= temp_g_score
                                         f_score[child_node]= temp_f_score
                                         queue.put((temp_f_score, algo.h('a*', child_node), child_node))
-                                        algo.cloned.tag_lower(algo.cloned.create_rectangle(0+child_node%size*algo.w, 0+child_node//size*algo.w, child_node%size*algo.w + algo.w -0, child_node//size*algo.w + algo.w-0, tags='del', width = 0, fill='#51388C'))
                                         self.path[child_node]=cur_node
                         root.after(1, astar_loop)
             root.after(0, astar_loop)

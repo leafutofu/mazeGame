@@ -2,7 +2,7 @@ import customtkinter as ctk
 import random
 import time
 
-path = {}
+
 class Graph:
     def __init__(self, size):
         global w, adj_mat
