@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import numpy as np
 import random
 import time
 
@@ -127,25 +128,24 @@ class Graph:
                     self.remove_wall(self.size*row+node, self.size*row+node+1)
 
 
-def create_canvas(frame):
+def create_canvas(frame, canvas_colour):
     global canvas_m
-    canvas_m = ctk.CTkCanvas(frame, width=600, height=600, bg='#0c1f13', highlightthickness=2)
+    canvas_m = ctk.CTkCanvas(frame, width=600, height=600, bg=canvas_colour, highlightthickness=0)
     canvas_m.pack(anchor=ctk.CENTER, expand=True)
 
-def clone_canvas(widget, frame):
+def clone_canvas(widget, frame, canvas_colour, line_colour):
     global cloned
     # get the config of the canvas
     cfg = {key: widget.cget(key) for key in widget.configure()}
     # create new canvas using the config
     cloned = ctk.CTkCanvas(frame, **cfg)
-    #cloned.configure(highlightthickness=0)
-    draw_maze(cloned)
+    cloned.configure(highlightthickness=0, bg=canvas_colour)
+    draw_maze(cloned, line_colour)
     cloned.pack(anchor=ctk.CENTER, expand=True)
 
-def draw_maze(canvas):
+def draw_maze(canvas, line_colour):
     cols = int(600 / w)
     linewidth = 2
-    line_colour = '#afbf8b'
     canvas.delete(canvas.gettags("line"))
     for node in range(cols**2):
         directions = [(0, 1, 'R'), (1, 0, 'B')]
@@ -196,6 +196,18 @@ def h(mode, node=None): #heuristic
         x = node % cols + 1
         y = node // cols + 1
         return (cols-x) + (cols-y)
+
+def hex_to_RGB(hex_str):
+    return [int(hex_str[i:i+2], 16) for i in range(1,6,2)]
+
+def get_colour_gradient(c1, c2, n):
+    assert n > 1
+    c1_rgb = np.array(hex_to_RGB(c1))/255
+    c2_rgb = np.array(hex_to_RGB(c2))/255
+    mix_pcts = [x/(n-1) for x in range(n)]
+    rgb_colours = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
+    return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colours]
+
 
 def node_player(player, mode): #returns the node the player is on given coordinates of top left corner of player on canvas
     cols = int(600 / w)
@@ -248,9 +260,6 @@ def detect_win(mode):
             return [order_list, p1_time_end, p2_time_end]
         return [False]
     
-def draw_solution():
-    pass
-
 def get_moves(mode):
     return p1moves if mode == 'single' else [p1moves, p2moves]
 
@@ -339,3 +348,9 @@ def move_p2(event):
             break
         except NameError:
             break
+
+def return_start(event):
+    if event.keysym.lower() == 'q':
+        canvas_m.moveto(p1, 3, 3)
+    if event.keysym == 'slash':
+        print(p2)

@@ -1,67 +1,20 @@
-import customtkinter as ctk
-import dog2
+import numpy as np
 
-root = ctk.CTk()
-root.configure(fg_color='green')
-root.geometry("900x1000") #window size
-root.title('Hedge') #window title
-root.iconbitmap('assets/icon.ico') #window icon
-#root.wm_resizable(False, False) #makes window a fixed size
+def hex_to_RGB(hex_str):
+    """ #FFFFFF -> [255,255,255]"""
+    #Pass 16 to the integer function for change of base
+    return [int(hex_str[i:i+2], 16) for i in range(1,6,2)]
 
-canvas = dog2.draw_canvas(root)
-dog2.make_rect()
-
-frame = ctk.CTkFrame(root, fg_color='blue')
-frame.pack()
-
-def clone_widget(widget, master=None):
+def get_color_gradient(c1, c2, n):
     """
-    Create a cloned version o a widget
-
-    Parameters
-    ----------
-    widget : tkinter widget
-        tkinter widget that shall be cloned.
-    master : tkinter widget, optional
-        Master widget onto which cloned widget shall be placed. If None, same master of input widget will be used. The
-        default is None.
-
-    Returns
-    -------
-    cloned : tkinter widget
-        Clone of input widget onto master widget.
-
+    Given two hex colors, returns a color gradient
+    with n colors.
     """
-    # Get main info
-    parent = master if master else widget.master
-    cls = widget.__class__
+    assert n > 1
+    c1_rgb = np.array(hex_to_RGB(c1))/255
+    c2_rgb = np.array(hex_to_RGB(c2))/255
+    mix_pcts = [x/(n-1) for x in range(n)]
+    rgb_colors = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
+    return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colors]
 
-    # Clone the widget configuration
-    cfg = {key: widget.cget(key) for key in widget.configure()}
-    cloned = cls(parent, **cfg)
-
-    # Clone the widget's children
-    for child in widget.winfo_children():
-        child_cloned = clone_widget(child, master=cloned)
-        if child.grid_info():
-            grid_info = {k: v for k, v in child.grid_info().items() if k not in {'in'}}
-            child_cloned.grid(**grid_info)
-        elif child.place_info():
-            place_info = {k: v for k, v in child.place_info().items() if k not in {'in'}}
-            child_cloned.place(**place_info)
-        else:
-            pack_info = {k: v for k, v in child.pack_info().items() if k not in {'in'}}
-            child_cloned.pack(**pack_info)
-
-    return cloned
-
-cloned_canvas = clone_widget(dog2.dog_canvas, frame)
-cloned_canvas.pack()
-
-dog2.dog_canvas.destroy()
-
-
-root.mainloop()
-
-
-
+get_color_gradient('#473d5a', '#004f5a', 100)

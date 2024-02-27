@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import test
 
 def draw_canvas(frame):
     global dog_canvas
