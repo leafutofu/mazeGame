@@ -139,7 +139,7 @@ def clone_canvas(widget, frame, canvas_colour, line_colour):
     cfg = {key: widget.cget(key) for key in widget.configure()}
     # create new canvas using the config
     cloned = ctk.CTkCanvas(frame, **cfg)
-    cloned.configure(highlightthickness=0, bg=canvas_colour)
+    cloned.configure(highlightthickness=3, bg=canvas_colour)
     draw_maze(cloned, line_colour)
     cloned.pack(anchor=ctk.CENTER, expand=True)
 
