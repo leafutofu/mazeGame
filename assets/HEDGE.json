@@ -138,7 +138,7 @@
       "#2e3434"
     ],
     "progress_color": [
-      "#526559",
+      "#96a672",
       "#bbc6bf"
     ],
     "button_color": [
@@ -177,11 +177,11 @@
     "corner_radius": 6,
     "border_width": 2,
     "fg_color": [
-      "#43564a",
+      "#a0b07c",
       "#203327"
     ],
     "border_color": [
-      "#3d452c",
+      "#82925e",
       "#16291d"
     ],
     "button_color": [
@@ -278,7 +278,7 @@
   },
   "DropdownMenu": {
     "fg_color": [
-      "#c6cece",
+      "#afbf8b",
       "#25382c"
     ],
     "hover_color": [
@@ -312,7 +312,7 @@
     "date created": "Dec 25 2023 17:39:13",
     "last modified by": "Lifu Yang",
     "created with": "CTk Theme Builder v2.5.1",
-    "last modified": "Jan 30 2024 10:46:00",
+    "last modified": "Mar 04 2024 11:03:40",
     "keystone colour": "#3c5064",
     "harmony method": "Tetradic",
     "harmony differential": null,

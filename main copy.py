@@ -97,41 +97,33 @@ class settings(Page):
         theme_button.place(relx = 0.5, rely = 0.5, anchor = 'center')
         #MAGE GEN STYLE IE PERFECT AND IMPERFECT MAZES
         def gen_switch_event():
-            if gen_switch_var.get() == 'on':
-                main.sg.imperfect = True
-                main.mg.imperfect = True
-            elif gen_switch_var.get() == 'off':
-                main.sg.imperfect = False
-                main.mg.imperfect = False
-        gen_switch_var = ctk.StringVar(value='off')
+            if gen_switch_var.get():
+                main.so.imperfect = True
+            else:
+                main.so.imperfect = False
+        gen_switch_var = ctk.StringVar(value=False)
         gen_switch = ctk.CTkSwitch(self, text='imperfect', command=gen_switch_event,
-                                 variable=gen_switch_var, onvalue='on', offvalue='off') #true is imperfect
+                                 variable=gen_switch_var, onvalue=True, offvalue=False) #true is imperfect
         gen_switch.pack()
         #MODE - PRESS Q TO RETURN TO START
         def ret_switch_event():
-            if ret_switch_var.get() == 'on':
-                print('returning mode on')
+            if ret_switch_var.get():
                 algo.ret_start_allowed = True
-            elif ret_switch_var.get() == 'off':
-                print('mode off')
+                #create a slider
+            else:
                 algo.ret_start_allowed = False
-        ret_switch_var = ctk.StringVar(value='off')
+                #gray out the slider
+        ret_switch_var = ctk.StringVar(value=False)
         ret_switch = ctk.CTkSwitch(self, text='return', command=ret_switch_event,
-                                 variable=ret_switch_var, onvalue='on', offvalue='off')
+                                 variable=ret_switch_var, onvalue=True, offvalue=False)
         ret_switch.pack()
-
-
+        #MODE - FORCIBLY CAUSE OTHER PLAYER TO RETURN TO START BY OVERLAPPING
+        def overlap_switch_event():
+            pass
+        overlap_switch_var = ctk.StringVar(value=False)
+        overlap_switch = ctk.CTkSwitch(self, text='overlap', command=overlap_switch_event,
+                                 variable=overlap_switch_var, onvalue=True, offvalue=False) #true is imperfect
         #Turn off game sound
-        def sound_switch_event():
-            if sound_switch_var.get() == 'on':
-                algo.sound_allowed = True
-            elif sound_switch_var.get() == 'off':
-                algo.sound_allowed = False
-        sound_switch_var = ctk.StringVar(value='on')
-        sound_switch = ctk.CTkSwitch(self, text='player move sound', command=sound_switch_event,
-                                 variable=sound_switch_var, onvalue='on', offvalue='off')
-        sound_switch.pack()
-
 
         def back_button(): #directs to either the main menu or mode selection page depending on the contents of the page stack
             algo.play_click_sound()
@@ -269,7 +261,7 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
 
         self.bg1label = ctk.CTkLabel(self, image = bg1, text = '') #create label to place background image
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
-
+        
         m_frame = ctk.CTkFrame(self, width=900, height=700)
         m_frame.place(relx=0.5, rely=0.5, anchor='center')
 
@@ -278,7 +270,7 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
 
         def combobox_callback(choice):
             if choice == 0:
-                self.mp_params = [] #creates sp_params if combobox is not selected and the start game button is pressed
+                self.mp_params = [] #creates mp_params if combobox is not selected and the start game button is pressed
             elif choice == -1:
                 self.mp_params[0] = int(get_current_value())
             else:
@@ -287,8 +279,7 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         title_label = ctk.CTkLabel(s_frame, text='-Multiplayer Options-', font=('Upheaval TT (BRK)', 35), text_color='#FFFFFF')
         title_label.place(relx=0.5, rely=0.12, anchor='center')
 
-        combobox = ctk.CTkComboBox(s_frame, width=400, height=50,
-                                   state="readonly",
+        combobox = ctk.CTkComboBox(s_frame, width=400, height=50, 
                                    values=['Depth First Search', 'Hunt-and-Kill', 'Sidewinder'], 
                                    font=('Upheaval TT (BRK)', 20), 
                                    dropdown_font=('Upheaval TT (BRK)', 20),
@@ -297,7 +288,7 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         combobox.place(relx=0.5, rely=0.31, anchor='center')
 
         slider_value = ctk.DoubleVar()
-        
+
         def get_current_value():
             value = '{: .0f}'.format(slider_value.get()*25+5)
             return value
@@ -324,29 +315,22 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
             algo.play_click_sound()
             if self.mp_params != []:
                 combobox_callback(-1)
-                main.mg.mpGameCanvas('new')
-                algo.pmode = 'multi'
+                main.mg.mpGameCanvas()
                 controller.pages['mpGame'].show()
                 combobox_error_message.configure(text='')
-                slider.set(0)
-                slider_value_label.configure(text=format_value(get_current_value()))
-                combobox.set('Select a generation algorithm')
             else:
                 combobox_error_message.configure(text='error : no maze generation algorithm selected')
-                
-        mpGame_button = ctk.CTkButton(s_frame, height=40, fg_color='#75a050', hover_color='#3d5329', text='START', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30), border_width=2, command=mpGame_button)
+
+        mpGame_button = ctk.CTkButton(s_frame, height=40, fg_color='#82925e', hover_color='#3d5329', text='START', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30), border_width=2, border_color='#c7ced7', command=mpGame_button)
         mpGame_button.place(relx=0.5, rely=0.84, anchor='center')
 
         def back_button():
-            slider.set(0)
-            combobox.set('Select a generation algorithm')
-            slider_value_label.configure(text=format_value(get_current_value()))
             algo.play_click_sound()
             combobox_error_message.configure(text='')
             controller.pages['modeSelection'].show()
-            self.mp_params = []
-        
+
         back_button = ctk.CTkButton(m_frame, height=40, corner_radius=8, border_width=3, text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
+
         back_button.grid(row=0, column=0, padx=(0,536), pady=(0,494))
 
         combobox_callback(0)
@@ -356,7 +340,7 @@ class spGame(Page): #singleplayer game screen
         Page.__init__(self, *args, **kwargs)
 
         self.controller = controller
-        self.imperfect = False
+        self.imperfect = True
 
         self.bg1label = ctk.CTkLabel(self, image = bg_game, text = '') #create label to place background image
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
@@ -423,7 +407,6 @@ class spGame(Page): #singleplayer game screen
     def createNewMaze(self):
         self.game_frame = ctk.CTkFrame(self, width=600, height=600)
         self.game_frame.place(relx=0.5, rely=0.5, anchor='center')
-
         algo.create_canvas(self.game_frame, canvas_colour)
         algo.graph = algo.Graph(main.so.sp_params[0])
 
@@ -441,6 +424,7 @@ class spGame(Page): #singleplayer game screen
 
         if self.imperfect:
             algo.graph.Imperfect()
+        
         
         algo.draw_maze(algo.canvas_m, line_colour)
         
@@ -472,7 +456,7 @@ class spGame(Page): #singleplayer game screen
                 main.r.results('single')
                 self.controller.pages['Results'].show()
                 self.retry_label.pack_forget()
-                main.so.sp_params[1] = ''
+                main.so.sp_params = []
             if self.update == True:
                 self.progress.set(1-(algo.h('single')/(2*main.so.sp_params[0]))) #h() is heuristic function
                 self.step_label.configure(text=f'{algo.get_moves("single")}  ')
@@ -486,15 +470,14 @@ class mpGame(Page): #multiplayer game screen
         Page.__init__(self, *args, **kwargs)
 
         self.controller = controller
-        self.imperfect = False
 
         self.bg1label = ctk.CTkLabel(self, image = bg_game, text = '') #create label to place background image
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
 
-        self.title_frame = ctk.CTkFrame(self)
-        self.title_frame.place(relx=0.5, rely=0.1, anchor='center')
-        title = ctk.CTkLabel(self.title_frame, text=" HEDGE ", text_color='#82925e', font=('Upheaval TT (BRK)', 50))
-        subheading = ctk.CTkLabel(self.title_frame, text="MULTIPLAYER ", text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30, 'italic'))
+        title_frame = ctk.CTkFrame(self)
+        title_frame.place(relx=0.5, rely=0.1, anchor='center')
+        title = ctk.CTkLabel(title_frame, text=" HEDGE ", text_color='#4a6f3e', font=('Upheaval TT (BRK)', 80))
+        subheading = ctk.CTkLabel(title_frame, text="MULTIPLAYER ", text_color='#FFFFFF', font=('Upheaval TT (BRK)', 40, 'italic'))
         title.pack()
         subheading.pack()
         
@@ -537,24 +520,19 @@ class mpGame(Page): #multiplayer game screen
         #
         #a temporary back button
         def back_button():
+            algo.p1allowed, algo.p2allowed = True, True
             self.update = False
             controller.pages['mpOptions'].show()
         
         back_button = ctk.CTkButton(self, height=40, font=('Upheaval TT (BRK)', 15), text="demo bck", command=back_button)
         back_button.place(relx=0.2, rely=0.1, anchor='center')
-
-        def skip_button():
-            self.update = False
-            self.sp_time_end = time.time()
-            main.r.results('multi')
-            controller.pages['Results'].show()
-
-        skip_button = ctk.CTkButton(self, height=40, font=('Upheaval TT (BRK)', 15), text="demo skip", command=skip_button)
-        skip_button.place(relx=0.8, rely=0.1, anchor='center')
         #
         #
 
-    def createNewMaze(self):
+    def mpGameCanvas(self):
+        #global sp_time_end
+        self.update = True
+
         self.game_frame = ctk.CTkFrame(self, width=600, height=600)
         self.game_frame.place(relx=0.5, rely=0.5, anchor='center')
 
@@ -572,27 +550,8 @@ class mpGame(Page): #multiplayer game screen
         elif main.mo.mp_params[1] == 'Sidewinder':
             algo.graph.Sidewinder()
             self.algo_label.configure(text='Sidewinder ')
-
-        if self.imperfect:
-            algo.graph.Imperfect()
         
         algo.draw_maze(algo.canvas_m, line_colour)
-
-    def mpGameCanvas(self, mode):
-        self.update = True
-        self.mp_time_start = time.time()
-
-        self.retry_label = ctk.CTkLabel(self.title_frame, text='repeated', text_color='#ca4754', font=('Upheaval TT (BRK)', 15))
-        self.retry_label.pack()
-
-        if mode == 'new':
-            self.createNewMaze()
-            self.retry_label.pack_forget()
-        elif mode == 'retry':
-            self.retry_label.pack()
-            algo.canvas_m.delete(algo.p1)
-            algo.canvas_m.delete(algo.p2)
-
         algo.draw_player('multi')
         algo.p1moves = 0
         algo.p2moves = 0
@@ -601,16 +560,13 @@ class mpGame(Page): #multiplayer game screen
             win_list = algo.detect_win('multi')
             if win_list[0]:
                 self.update = False
-                main.r.results('multi', win_list)
-                self.controller.pages['Results'].show()
-                self.retry_label.pack_forget()
-                main.mo.mp_params[1] = ''
-                algo.order_list = []
+                main.mr.results(win_list)
+                self.controller.pages['mpResults'].show()
             if self.update == True:
                 self.progress1.set(1-(algo.h('multi')[0]/(2*main.mo.mp_params[0]))) #h() is heuristic function
                 self.progress2.set(1-(algo.h('multi')[1]/(2*main.mo.mp_params[0])))
-                
-
+                #self.step_label.configure(text=f'{algo.get_moves("single")}  ')
+                #self.time_label.configure(text=f'{round(time.time()-sp_time_start, 1)}  ')
                 root.after(100, mpUpdate)
 
         root.after(0, mpUpdate)
@@ -632,11 +588,8 @@ class Results(Page): #singleplayer results screen
         if self.mode == 'single':
             main.sg.spGameCanvas('retry')
             self.controller.pages['spGame'].show()
-        if self.mode == 'multi':
-            main.mg.mpGameCanvas('retry')
-            self.controller.pages['mpGame'].show()
 
-    def results(self, mode, win_list=None):
+    def results(self, mode):
 
         self.mode = mode
         
@@ -658,9 +611,6 @@ class Results(Page): #singleplayer results screen
 
             time_taken = ctk.CTkLabel(results_frame, text=f'Time Taken: {round(main.sg.sp_time_end - main.sg.sp_time_start, 1)} s', font=('Upheaval TT (BRK)', 33))
             time_taken.place(x=10, y=230)
-        elif self.mode == 'multi':
-            size = main.mo.mp_params[0]
-            print(win_list)
 
         canvas_frame = ctk.CTkFrame(self.m_frame, width=600, height = 600)
         algo.clone_canvas(algo.canvas_m, canvas_frame, canvas_colour, line_colour)
@@ -744,6 +694,15 @@ class Results(Page): #singleplayer results screen
 
         retry_button = ctk.CTkButton(results_frame, corner_radius=8, border_width=3, height=60, width=200, text='Retry', font=('Upheaval TT (BRK)', 35), command=self.retry_button)
         retry_button.place(x=265, y=565)
+
+class mpResults(Page): #multiplayer results screen
+    def __init__(self, controller, *args, **kwargs):
+        Page.__init__(self, *args, **kwargs)
+        label = ctk.CTkLabel(self, text="Multiplayer Results")
+        label.grid(row=0, column=0, padx=10, pady=10)
+    
+    def results(self, win_list):
+        print(win_list)
         
 class Window(ctk.CTkFrame): #create main window
     def __init__(self, *args, **kwargs):
@@ -751,10 +710,10 @@ class Window(ctk.CTkFrame): #create main window
 
         #create a dictionary for all of the different selection pages
         self.pages = {}
-        for Subclass in (mainMenu, settings, modeSelection, spOptions, mpOptions, spGame, mpGame, Results):
+        for Subclass in (mainMenu, settings, modeSelection, spOptions, mpOptions, spGame, mpGame, Results, mpResults):
             self.pages[Subclass.__name__] = Subclass(self)
         
-        self.mm, self.st, self.ms, self.so, self.mo, self.sg, self.mg, self.r = self.pages.values()
+        self.mm, self.st, self.ms, self.so, self.mo, self.sg, self.mg, self.r, self.mr = self.pages.values()
         
         #creating a container frame to contain the widgets of each page
         container = ctk.CTkFrame(self)

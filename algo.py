@@ -2,6 +2,19 @@ import customtkinter as ctk
 import numpy as np
 import random
 import time
+import pygame
+
+pygame.mixer.init()
+
+def play_click_sound():
+    pygame.mixer.music.load("assets/click.mp3")
+    pygame.mixer.music.play(loops=0)
+
+sound_allowed = True
+def play_move_sound():
+    if sound_allowed:
+        pygame.mixer.music.load("assets/move.mp3")
+        pygame.mixer.music.play(loops=0)
 
 
 class Graph:
@@ -64,7 +77,7 @@ class Graph:
                 randDFS(start_node)
                 break
             except RecursionError:
-                print('recursion error: retrying')
+                print('recursion error')
                 self.__init__(self.size)
             
     def Hunt_and_Kill(self):
@@ -127,6 +140,15 @@ class Graph:
                     #carve east
                     self.remove_wall(self.size*row+node, self.size*row+node+1)
 
+    def Imperfect(self):
+        print('gen imperfect')
+        for node in range(self.num_nodes):
+            if (node+1) % self.size != 0:
+                if self.detect_wall(node, node+1) and random.randrange(self.size) == 1:
+                    self.remove_wall(node, node+1)
+            if node < (self.num_nodes-self.size):
+                if self.detect_wall(node, node+self.size) and random.randrange(self.size) == 1:
+                    self.remove_wall(node, node+1)
 
 def create_canvas(frame, canvas_colour):
     global canvas_m
@@ -237,6 +259,8 @@ def future_pos(player, direction):
     if direction == 'E':
         return x+w
 
+order_list = []
+
 def detect_win(mode):
     global p1allowed, p2allowed
     cols = int(600 / w)
@@ -246,39 +270,47 @@ def detect_win(mode):
             return True
     elif mode == 'multi':
         p2coords = canvas_m.bbox(p2)
-        order_list = []
-        if p1coords[0] == p1coords[1] and (cols-1)*w + 2 <= p1coords[0] <= (cols-1)*w + 4:
-            order_list.append('p1')
-            p1_time_end = time.time()
+        if p1coords[0] == p1coords[1] and (cols-1)*w + 2 <= p1coords[0] <= (cols-1)*w + 4 and p1allowed:
+            order_list.append(['p1', time.time()])
             p1allowed = False
-        if p2coords[0] == p2coords[1] and (cols-1)*w + 2 <= p2coords[0] <= (cols-1)*w + 4:
-            order_list.append('p2')
-            p2_time_end = time.time()
+        if p2coords[0] == p2coords[1] and (cols-1)*w + 2 <= p2coords[0] <= (cols-1)*w + 4 and p2allowed:
+            order_list.append(['p2', time.time()])
             p2allowed = False
         if len(order_list) == 2:
             p1allowed, p2allowed = True, True
-            return [order_list, p1_time_end, p2_time_end]
+            canvas_m.moveto(po, -100, -100)
+            return order_list
         return [False]
     
 def get_moves(mode):
     return p1moves if mode == 'single' else [p1moves, p2moves]
 
+def check_overlap():
+    if node_player(p1, -1) == node_player(p2, -1):
+        canvas_m.moveto(po, canvas_m.bbox(p1)[0], canvas_m.bbox(p1)[1])
+        canvas_m.tag_raise(po)
+    else:
+        canvas_m.moveto(po, -100, -100)
+
 p1allowed = True
 p2allowed = True
+pmode = ''
 def move_p1(event):
     global p1moves
-    while p1allowed == True:
+    while p1allowed:
         try:
             cols = int(600 / w)
             node = node_player(p1, -1)
             if event.keysym.lower() == 'w' and adj_mat[node][node-cols] == 0:
                 pos = future_pos(p1, 'N')
                 if pos > 0:
+                    play_move_sound()
                     canvas_m.move(p1, 0, -w)
                     p1moves += 1
             if event.keysym.lower() == 'a' and adj_mat[node][node-1] == 0:
                 pos = future_pos(p1, 'W')
                 if pos > 0:
+                    play_move_sound()
                     canvas_m.move(p1, -w, 0)
                     p1moves += 1
             while True:
@@ -286,42 +318,43 @@ def move_p1(event):
                     if event.keysym.lower() == 's' and adj_mat[node][node+cols] == 0:
                         pos = future_pos(p1, 'S')
                         if pos < 600:
+                            play_move_sound()
                             canvas_m.move(p1, 0, w)
                             p1moves += 1
                     if event.keysym.lower() == 'd' and adj_mat[node][node+1] == 0:
                         pos = future_pos(p1, 'E')
                         if pos < 600:
+                            play_move_sound()
                             canvas_m.move(p1, w, 0)
                             p1moves += 1
                     break
                 except IndexError:
                     break
-            #squashie
+            # overlap display
             if p2 == None:
                 pass
-            elif node_player(p1, -1) == node_player(p2, -1):
-                canvas_m.moveto(po, canvas_m.bbox(p1)[0], canvas_m.bbox(p1)[1])
-                canvas_m.tag_raise(po)
-            else:
-                canvas_m.moveto(po, -100, -100)
+            if pmode == 'multi':
+                check_overlap()
             break
         except NameError:
             break
 
 def move_p2(event): 
     global p2moves
-    while p2allowed == True:
+    while p2allowed and pmode=='multi':
         try:
             cols = int(600 / w)
             node = node_player(p2, -1)
             if event.keysym == 'Up' and adj_mat[node][node-cols] == 0:
                 pos = future_pos(p2, 'N')
                 if pos > 0:
+                    play_move_sound()
                     canvas_m.move(p2, 0, -w)
                     p2moves += 1
             if event.keysym == 'Left' and adj_mat[node][node-1] == 0:
                 pos = future_pos(p2, 'W')
                 if pos > 0:
+                    play_move_sound()
                     canvas_m.move(p2, -w, 0)
                     p2moves += 1
             while True:
@@ -329,28 +362,37 @@ def move_p2(event):
                     if event.keysym == 'Down' and adj_mat[node][node+cols] == 0:
                         pos = future_pos(p2, 'S')
                         if pos < 600:
+                            play_move_sound()
                             canvas_m.move(p2, 0, w)
                             p2moves += 1
                     if event.keysym == 'Right' and adj_mat[node][node+1] == 0:
                         pos = future_pos(p2, 'E')
                         if pos < 600:
+                            play_move_sound()
                             canvas_m.move(p2, w, 0)
                             p2moves += 1
                     break
                 except IndexError:
                     break
-            # squashie
-            if node_player(p1, -1) == node_player(p2, -1):
-                canvas_m.moveto(po, canvas_m.bbox(p1)[0], canvas_m.bbox(p1)[1])
-                canvas_m.tag_raise(po)
-            else:
-                canvas_m.moveto(po, -100, -100)
+            # overlap display
+            check_overlap()
             break
         except NameError:
             break
 
+ret_start_allowed = False
 def return_start(event):
-    if event.keysym.lower() == 'q':
-        canvas_m.moveto(p1, 3, 3)
-    if event.keysym == 'slash':
-        print(p2)
+    while ret_start_allowed:
+        try:
+            if event.keysym.lower() == 'q':
+                canvas_m.moveto(p1, 3, 3)
+                if pmode == 'multi':
+                    canvas_m.moveto(po, -100, -100)
+                    check_overlap()
+            if event.keysym == 'slash':
+                canvas_m.moveto(p2, 3, 3)
+                canvas_m.moveto(po, -100, -100)
+                check_overlap()
+            break
+        except NameError:
+            break
