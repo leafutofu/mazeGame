@@ -11,6 +11,7 @@ ctk.set_default_color_theme("assets/HEDGE.json")
 if theme == 'light':
     bg1 = ctk.CTkImage(Image.open('assets/grad1bg.png'), size=(1920, 1080)) #import background image
     bg2 = ctk.CTkImage(Image.open('assets/bg1.png'), size=(900, 700))
+    bg_set = ctk.CTkImage(Image.open('assets/grad1set.png'), size=(1920, 1080))
     bg_game = ctk.CTkImage(Image.open('assets/grad1game.png'), size=(1920, 1080))
     bg_res = ctk.CTkImage(Image.open('assets/grad1res.png'), size=(1920, 1080))
     canvas_colour = '#82925e'
@@ -18,6 +19,7 @@ if theme == 'light':
 else:
     bg1 = ctk.CTkImage(Image.open('assets/grad2bg.png'), size=(1920, 1080)) #import background image
     bg2 = ctk.CTkImage(Image.open('assets/bg2.png'), size=(900, 700))
+    bg_set = ctk.CTkImage(Image.open('assets/grad2set.png'), size=(1920, 1080))
     bg_game = ctk.CTkImage(Image.open('assets/grad2game.png'), size=(1920, 1080))
     bg_res = ctk.CTkImage(Image.open('assets/grad2res.png'), size=(1920, 1080))
     canvas_colour = '#16291d'
@@ -87,16 +89,69 @@ class settings(Page):
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
 
-        self.bg1label = ctk.CTkLabel(self, image = bg1, text = '') #create label to place background image
+        self.m_frame = ctk.CTkFrame(self, width=1920, height=1080)
+        self.m_frame.place(relx=0.5, rely=0.5, anchor='center')
+
+        self.bg1label = ctk.CTkLabel(self.m_frame, image = bg_set, text='') #create label to place background image
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
 
+        self.frame = ctk.CTkFrame(self.m_frame, width=440, height=600)
+        self.frame.place(x=530, rely=0.5, anchor='center')
+        
+        self.info_frame = ctk.CTkFrame(self.m_frame, width = 650, height=540, corner_radius=12, bg_color=('#bfcba4','#34473b'))
+        self.info_frame.place(x=1295, rely=0.52, anchor='center')
+        self.info_frame.pack_propagate(0)
+
+        self.info_label = ctk.CTkLabel(self.info_frame, text='')
+        self.info_label.place(relx=0.48, rely=0, anchor='n')
+
+        title_label = ctk.CTkLabel(self.frame, text='Settings', font=('Upheaval TT (BRK)', 50))
+        title_label.place(x=0, y=0, anchor='nw')
+        title_label2 = ctk.CTkLabel(self.frame, text='+ information ', font=('Upheaval TT (BRK)', 35, 'italic'), text_color=('#FFFFFF','#506d5a'))
+        title_label2.place(x=100, y=40, anchor='nw')
+
+        #
+
+        radiobutton_value = ctk.StringVar(value="off")
+
+        def radiobutton_event():
+            selection = radiobutton_value.get()
+            if selection == 'theme':
+                self.info_label.configure(image=ctk.CTkImage(Image.open('assets/theme.png'), size=(600, 520)))
+            elif selection == 'gen':
+                self.info_label.configure(image=ctk.CTkImage(Image.open('assets/gen.png'), size=(600, 530)))
+            elif selection == 'ret':
+                self.info_label.configure(image=ctk.CTkImage(Image.open('assets/ret.png'), size=(605, 505)))
+            elif selection == 'sound':
+                self.info_label.configure(image=ctk.CTkImage(Image.open('assets/sound.png'), size=(600, 470)))
+
+        theme_button = ctk.CTkRadioButton(self.frame, text='', variable=radiobutton_value,
+                            value='theme', width=8, command=radiobutton_event)
+        gen_button = ctk.CTkRadioButton(self.frame, text='', variable=radiobutton_value,
+                            value='gen', width=8, command=radiobutton_event)
+        ret_button = ctk.CTkRadioButton(self.frame, text='', variable=radiobutton_value,
+                            value='ret', width=8, command=radiobutton_event)
+        sound_button = ctk.CTkRadioButton(self.frame, text='', variable=radiobutton_value,
+                            value='sound', width=8, command=radiobutton_event)
+
+        theme_button.place(x=10, y=122, anchor='nw')
+        gen_button.place(x=10, y=182, anchor='nw')
+        ret_button.place(x=10, y=242, anchor='nw')
+        sound_button.place(x=10, y=302, anchor='nw')
+
         #CHANGE THEME
-        def theme():
+        def theme_switch_event():
+            theme_button.invoke()
             main.switch_theme()
-        theme_button = ctk.CTkButton(self, text='switch theme', command=theme)
-        theme_button.place(relx = 0.5, rely = 0.5, anchor = 'center')
-        #MAGE GEN STYLE IE PERFECT AND IMPERFECT MAZES
+        theme_switch_var = ctk.StringVar(value='dark')
+        theme_switch = ctk.CTkSwitch(self.frame, text='    Theme', font=('Upheaval TT (BRK)', 20), text_color='#FFFFFF', command=theme_switch_event,
+                                 variable=theme_switch_var, onvalue='light', offvalue='dark',
+                                 switch_width=50, switch_height=27) #true is imperfect
+        theme_switch.place(x=60, y=120, anchor='nw')
+
+        #Generate Imperfect mazes with multiple solutions
         def gen_switch_event():
+            gen_button.invoke()
             if gen_switch_var.get() == 'on':
                 main.sg.imperfect = True
                 main.mg.imperfect = True
@@ -104,41 +159,55 @@ class settings(Page):
                 main.sg.imperfect = False
                 main.mg.imperfect = False
         gen_switch_var = ctk.StringVar(value='off')
-        gen_switch = ctk.CTkSwitch(self, text='imperfect', command=gen_switch_event,
-                                 variable=gen_switch_var, onvalue='on', offvalue='off') #true is imperfect
-        gen_switch.pack()
+        gen_switch = ctk.CTkSwitch(self.frame, text='    Generate imperfect mazes', font=('Upheaval TT (BRK)', 20), text_color='#FFFFFF', command=gen_switch_event,
+                                 variable=gen_switch_var, onvalue='on', offvalue='off',
+                                 switch_width=50, switch_height=27) #true is imperfect
+        gen_switch.place(x=60, y=180, anchor='nw')
+
         #MODE - PRESS Q TO RETURN TO START
         def ret_switch_event():
+            ret_button.invoke()
             if ret_switch_var.get() == 'on':
-                print('returning mode on')
                 algo.ret_start_allowed = True
             elif ret_switch_var.get() == 'off':
-                print('mode off')
                 algo.ret_start_allowed = False
         ret_switch_var = ctk.StringVar(value='off')
-        ret_switch = ctk.CTkSwitch(self, text='return', command=ret_switch_event,
-                                 variable=ret_switch_var, onvalue='on', offvalue='off')
-        ret_switch.pack()
-
+        ret_switch = ctk.CTkSwitch(self.frame, text='    Allow return to start', font=('Upheaval TT (BRK)', 20), text_color='#FFFFFF', command=ret_switch_event,
+                                 variable=ret_switch_var, onvalue='on', offvalue='off',
+                                 switch_width=50, switch_height=27)
+        ret_switch.place(x=60, y=240, anchor='nw')
 
         #Turn off game sound
         def sound_switch_event():
+            sound_button.invoke()
             if sound_switch_var.get() == 'on':
                 algo.sound_allowed = True
             elif sound_switch_var.get() == 'off':
                 algo.sound_allowed = False
         sound_switch_var = ctk.StringVar(value='on')
-        sound_switch = ctk.CTkSwitch(self, text='player move sound', command=sound_switch_event,
-                                 variable=sound_switch_var, onvalue='on', offvalue='off')
-        sound_switch.pack()
+        sound_switch = ctk.CTkSwitch(self.frame, text='    Player move sound', font=('Upheaval TT (BRK)', 20), text_color='#FFFFFF', command=sound_switch_event,
+                                 variable=sound_switch_var, onvalue='on', offvalue='off',
+                                 switch_width=50, switch_height=27)
+        sound_switch.place(x=60, y=300, anchor='nw')
+        
+        #
 
+        def tutorial_button():
+            theme_button.deselect()
+            gen_button.deselect()
+            ret_button.deselect()
+            sound_button.deselect()
+            self.info_label.configure(image=ctk.CTkImage(Image.open('assets/tut2.png'), size=(605, 525)))
+
+        tutorial_button = ctk.CTkButton(self.frame, height=70, width=300, corner_radius=10, border_width=0, font=('Upheaval TT (BRK)', 30), text="🛈 HOW TO PLAY", command=tutorial_button)
+        tutorial_button.place(x=30, y=400, anchor='nw')
 
         def back_button(): #directs to either the main menu or mode selection page depending on the contents of the page stack
             algo.play_click_sound()
             controller.pages['mainMenu'].show() #shows the page previous to the settings page
         
-        back_button = ctk.CTkButton(self, height=40, corner_radius=8, border_width=2, font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
-        back_button.place(relx=0.3, rely=0.2, anchor='center')
+        back_button = ctk.CTkButton(self.frame, height=40, corner_radius=8, border_width=2, font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
+        back_button.place(x=0, y=550, anchor='nw')
 
 class modeSelection(Page): #selects singleplayer or multiplayer
     def __init__(self, controller, *args, **kwargs):
@@ -775,11 +844,12 @@ class Window(ctk.CTkFrame): #create main window
             line_colour = '#afbf8b'
             self.mm.bg2label.configure(image=ctk.CTkImage(Image.open('assets/bg2.png'), size=(900, 700)))
             self.mm.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2bg.png'), size=(1920, 1080)))
-            self.st.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2bg.png'), size=(1920, 1080)))
+            self.st.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2set.png'), size=(1920, 1080)))
             self.ms.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2bg.png'), size=(1920, 1080)))
             self.so.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2bg.png'), size=(1920, 1080)))
             self.mo.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2bg.png'), size=(1920, 1080)))
             self.sg.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2game.png'), size=(1920, 1080)))
+            self.mg.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2game.png'), size=(1920, 1080)))
             self.r.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2res.png'), size=(1920, 1080)))
         else:
             theme = 'light'
@@ -787,11 +857,12 @@ class Window(ctk.CTkFrame): #create main window
             line_colour = '#FFFFFF'
             self.mm.bg2label.configure(image=ctk.CTkImage(Image.open('assets/bg1.png'), size=(900, 700)))
             self.mm.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1bg.png'), size=(1920, 1080)))
-            self.st.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1bg.png'), size=(1920, 1080)))
+            self.st.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1set.png'), size=(1920, 1080)))
             self.ms.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1bg.png'), size=(1920, 1080)))
             self.so.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1bg.png'), size=(1920, 1080)))
             self.mo.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1bg.png'), size=(1920, 1080)))
             self.sg.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1game.png'), size=(1920, 1080)))
+            self.mg.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1game.png'), size=(1920, 1080)))
             self.r.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1res.png'), size=(1920, 1080)))
         ctk.set_appearance_mode(theme)
 
