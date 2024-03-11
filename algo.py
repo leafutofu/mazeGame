@@ -141,14 +141,13 @@ class Graph:
                     self.remove_wall(self.size*row+node, self.size*row+node+1)
 
     def Imperfect(self):
-        print('gen imperfect')
         for node in range(self.num_nodes):
             if (node+1) % self.size != 0:
                 if self.detect_wall(node, node+1) and random.randrange(self.size) == 1:
                     self.remove_wall(node, node+1)
             if node < (self.num_nodes-self.size):
-                if self.detect_wall(node, node+self.size) and random.randrange(self.size) == 1:
-                    self.remove_wall(node, node+1)
+                if self.detect_wall(node, node+self.size) and random.randrange(self.size//3) == 1:
+                    self.remove_wall(node, node+self.size)
 
 def create_canvas(frame, canvas_colour):
     global canvas_m
@@ -231,7 +230,7 @@ def get_colour_gradient(c1, c2, n):
     return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colours]
 
 
-def node_player(player, mode): #returns the node the player is on given coordinates of top left corner of player on canvas
+def node_player(player, mode=None): #returns the node the player is on given coordinates of top left corner of player on canvas
     cols = int(600 / w)
     coords = canvas_m.bbox(player)
     x = coords[0] - 2
@@ -283,10 +282,13 @@ def detect_win(mode):
         return [False]
     
 def get_moves(mode):
-    return p1moves if mode == 'single' else [p1moves, p2moves]
+    if mode == 'single':
+        return p1moves
+    else:
+        return [p1moves, p2moves]
 
 def check_overlap():
-    if node_player(p1, -1) == node_player(p2, -1):
+    if node_player(p1) == node_player(p2):
         canvas_m.moveto(po, canvas_m.bbox(p1)[0], canvas_m.bbox(p1)[1])
         canvas_m.tag_raise(po)
     else:
@@ -300,7 +302,7 @@ def move_p1(event):
     while p1allowed:
         try:
             cols = int(600 / w)
-            node = node_player(p1, -1)
+            node = node_player(p1)
             if event.keysym.lower() == 'w' and adj_mat[node][node-cols] == 0:
                 pos = future_pos(p1, 'N')
                 if pos > 0:
@@ -344,7 +346,7 @@ def move_p2(event):
     while p2allowed and pmode=='multi':
         try:
             cols = int(600 / w)
-            node = node_player(p2, -1)
+            node = node_player(p2)
             if event.keysym == 'Up' and adj_mat[node][node-cols] == 0:
                 pos = future_pos(p2, 'N')
                 if pos > 0:

@@ -197,7 +197,7 @@ class settings(Page):
             gen_button.deselect()
             ret_button.deselect()
             sound_button.deselect()
-            self.info_label.configure(image=ctk.CTkImage(Image.open('assets/tut2.png'), size=(605, 525)))
+            self.info_label.configure(image=ctk.CTkImage(Image.open('assets/tut2.png'), size=(610, 525)))
 
         tutorial_button = ctk.CTkButton(self.frame, height=70, width=300, corner_radius=10, border_width=0, font=('Upheaval TT (BRK)', 30), text="🛈 HOW TO PLAY", command=tutorial_button)
         tutorial_button.place(x=30, y=400, anchor='nw')
@@ -307,6 +307,7 @@ class spOptions(Page): #screen to select generation style and grid size for sing
             if self.sp_params != []:
                 combobox_callback(-1)
                 main.sg.spGameCanvas('new')
+                algo.pmode = '' #set the mode for algo file to be singleplayer to prevent checking overlap in move_p1()
                 controller.pages['spGame'].show()
                 combobox_error_message.configure(text='')
                 slider.set(0)
@@ -469,26 +470,16 @@ class spGame(Page): #singleplayer game screen
         self.progress.set(0)
         self.progress.place(relx=0.5, rely=0.9, anchor='center')
 
-        #
-        #temporary demonstration stuff
         def back_button():
             self.update = False
             controller.pages['spOptions'].show()
+            self.retry_label.pack_forget()
+            main.so.sp_params = []
         
-        back_button = ctk.CTkButton(self, height=40, font=('Upheaval TT (BRK)', 15), text="demo bck", command=back_button)
-        back_button.place(relx=0.2, rely=0.1, anchor='center')
-
-        def skip_button():
-            self.update = False
-            self.sp_time_end = time.time()
-            main.r.results('single')
-            controller.pages['Results'].show()
-
-        skip_button = ctk.CTkButton(self, height=40, font=('Upheaval TT (BRK)', 15), text="demo skip", command=skip_button)
-        skip_button.place(relx=0.8, rely=0.1, anchor='center')
+        back_button = ctk.CTkButton(self, height=40, corner_radius=8, border_width=3, text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
+        back_button.place(relx=0.1, rely=0.1, anchor='center')
             
-        #
-        #
+
     def createNewMaze(self):
         self.game_frame = ctk.CTkFrame(self, width=600, height=600)
         self.game_frame.place(relx=0.5, rely=0.5, anchor='center')
@@ -500,7 +491,7 @@ class spGame(Page): #singleplayer game screen
      
         if main.so.sp_params[1] == 'Depth First Search':
             algo.graph.DFS()
-            self.algo_label.configure(text='DFS')
+            self.algo_label.configure(text='DFS ')
         elif main.so.sp_params[1] == 'Hunt-and-Kill':
             algo.graph.Hunt_and_Kill()
             self.algo_label.configure(text='Hunt - Kill')
@@ -582,18 +573,20 @@ class mpGame(Page): #multiplayer game screen
 
         #
 
-        #right_frame = ctk.CTkFrame(self, height=228, width=380)
-        #right_frame.place(relx=0.85, rely=0.495, anchor='center')
+        right_frame = ctk.CTkFrame(self, height=330, width=380)
+        right_frame.place(relx=0.85, rely=0.495, anchor='center')
 
-        #right_image = ctk.CTkImage(Image.open('assets/sg_right.png'), size=(233, 227))
-        #right_image_label = ctk.CTkLabel(right_frame, text='', image=right_image)
-        #right_image_label.place(x=380, rely=0.5, anchor='e')
+        right_image = ctk.CTkImage(Image.open('assets/mg_right.png'), size=(231, 329))
+        right_image_label = ctk.CTkLabel(right_frame, text='', image=right_image)
+        right_image_label.place(x=380, rely=0.5, anchor='e')
     
-        #self.step_label = ctk.CTkLabel(right_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 45, 'italic'))
-        #self.time_label = ctk.CTkLabel(right_frame, text='', text_color='#4a6f3e', font=('Upheaval TT (BRK)', 50, 'italic'))
+        self.p1_step_label = ctk.CTkLabel(right_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 45, 'italic'))
+        self.p2_step_label = ctk.CTkLabel(right_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 45, 'italic'))
+        self.time_label = ctk.CTkLabel(right_frame, text='', text_color='#82925e', font=('Upheaval TT (BRK)', 50, 'italic'))
         #6f3e4a
-        #self.step_label.place(x=100, rely=0.145, anchor='w')
-        #self.time_label.place(x=100, rely=0.645, anchor='w')
+        self.p1_step_label.place(x=100, rely=0.145, anchor='w')
+        self.p2_step_label.place(x=100, rely=0.337, anchor='w')
+        self.time_label.place(x=100, rely=0.755, anchor='w')
 
         self.progress1 = ctk.CTkProgressBar(self, width=600, height=5, corner_radius=5, progress_color='#c77373')
         self.progress1.set(0)
@@ -602,26 +595,16 @@ class mpGame(Page): #multiplayer game screen
         self.progress2.set(0)
         self.progress2.place(relx=0.5, rely=0.92, anchor='center')
 
-
-        #
-        #a temporary back button
         def back_button():
             self.update = False
+            self.retry_label.pack_forget()
+            main.mo.mp_params = []
+            algo.order_list = []
             controller.pages['mpOptions'].show()
         
-        back_button = ctk.CTkButton(self, height=40, font=('Upheaval TT (BRK)', 15), text="demo bck", command=back_button)
-        back_button.place(relx=0.2, rely=0.1, anchor='center')
+        back_button = ctk.CTkButton(self, height=40, corner_radius=8, border_width=3, text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
+        back_button.place(relx=0.1, rely=0.1, anchor='center')
 
-        def skip_button():
-            self.update = False
-            self.sp_time_end = time.time()
-            main.r.results('multi')
-            controller.pages['Results'].show()
-
-        skip_button = ctk.CTkButton(self, height=40, font=('Upheaval TT (BRK)', 15), text="demo skip", command=skip_button)
-        skip_button.place(relx=0.8, rely=0.1, anchor='center')
-        #
-        #
 
     def createNewMaze(self):
         self.game_frame = ctk.CTkFrame(self, width=600, height=600)
@@ -634,7 +617,7 @@ class mpGame(Page): #multiplayer game screen
      
         if main.mo.mp_params[1] == 'Depth First Search':
             algo.graph.DFS()
-            self.algo_label.configure(text='DFS')
+            self.algo_label.configure(text='DFS ')
         elif main.mo.mp_params[1] == 'Hunt-and-Kill':
             algo.graph.Hunt_and_Kill()
             self.algo_label.configure(text='Hunt - Kill')
@@ -665,7 +648,7 @@ class mpGame(Page): #multiplayer game screen
         algo.draw_player('multi')
         algo.p1moves = 0
         algo.p2moves = 0
-
+        
         def mpUpdate():
             win_list = algo.detect_win('multi')
             if win_list[0]:
@@ -678,8 +661,9 @@ class mpGame(Page): #multiplayer game screen
             if self.update == True:
                 self.progress1.set(1-(algo.h('multi')[0]/(2*main.mo.mp_params[0]))) #h() is heuristic function
                 self.progress2.set(1-(algo.h('multi')[1]/(2*main.mo.mp_params[0])))
-                
-
+                self.p1_step_label.configure(text=f'{algo.get_moves("multi")[0]}  ')
+                self.p2_step_label.configure(text=f'{algo.get_moves("multi")[1]}  ')
+                self.time_label.configure(text=f'{round(time.time()-self.mp_time_start, 1)}  ')
                 root.after(100, mpUpdate)
 
         root.after(0, mpUpdate)
@@ -688,12 +672,15 @@ class Results(Page): #singleplayer results screen
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
         self.controller = controller
+        self.path2 = {}
 
         self.bg1label = ctk.CTkLabel(self, image = bg_res, text = '') #create label to place background image
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
 
     def return_button(self):
         algo.play_click_sound()
+        main.so.sp_params = []
+        main.mo.mp_params = []
         self.controller.pages['modeSelection'].show()
 
     def retry_button(self):
@@ -704,7 +691,13 @@ class Results(Page): #singleplayer results screen
         if self.mode == 'multi':
             main.mg.mpGameCanvas('retry')
             self.controller.pages['mpGame'].show()
-
+    
+    def home_button(self):
+        algo.play_click_sound()
+        main.so.sp_params = []
+        main.mo.mp_params = []
+        self.controller.pages['mainMenu'].show()
+    
     def results(self, mode, win_list=None):
 
         self.mode = mode
@@ -729,7 +722,30 @@ class Results(Page): #singleplayer results screen
             time_taken.place(x=10, y=230)
         elif self.mode == 'multi':
             size = main.mo.mp_params[0]
-            print(win_list)
+            if win_list[0][0] == 'p1':
+                p1_time_end = win_list[0][1]
+                p2_time_end = win_list[1][1]
+                title = ctk.CTkLabel(results_frame, text='RED WINS!', text_color='#c77373', font=('Upheaval TT (BRK)', 70))
+            else:
+                p1_time_end = win_list[1][1]
+                p2_time_end = win_list[0][1]
+                title = ctk.CTkLabel(results_frame, text='YELLOW WINS!', text_color='#f4e59d', font=('Upheaval TT (BRK)', 70))
+            title.place(x=10, y=0)
+
+
+            p1_label = ctk.CTkLabel(results_frame, text=f'Player 1: RED', text_color='#c77373', font=('Upheaval TT (BRK)', 33))
+            p1_label.place(x=10, y=130)
+            p1_steps = ctk.CTkLabel(results_frame, text=f'Steps: {algo.get_moves("multi")[0]}', font=('Upheaval TT (BRK)', 33))
+            p1_steps.place(x=50, y=160)
+            p1_time = ctk.CTkLabel(results_frame, text=f'Time: {round(p1_time_end - main.mg.mp_time_start, 2)} s', font=('Upheaval TT (BRK)', 33))
+            p1_time.place(x=50, y=190)
+
+            p2_label = ctk.CTkLabel(results_frame, text=f'Player 2: YELLOW', text_color='#f4e59d', font=('Upheaval TT (BRK)', 33))
+            p2_label.place(x=10, y=230)
+            p2_steps = ctk.CTkLabel(results_frame, text=f'Steps: {algo.get_moves("multi")[1]}', font=('Upheaval TT (BRK)', 33))
+            p2_steps.place(x=50, y=260)
+            p2_time = ctk.CTkLabel(results_frame, text=f'Time: {round(p2_time_end - main.mg.mp_time_start, 2)} s', font=('Upheaval TT (BRK)', 33))
+            p2_time.place(x=50, y=290)
 
         canvas_frame = ctk.CTkFrame(self.m_frame, width=600, height = 600)
         algo.clone_canvas(algo.canvas_m, canvas_frame, canvas_colour, line_colour)
@@ -796,8 +812,17 @@ class Results(Page): #singleplayer results screen
                     algo.cloned.create_rectangle(0+node%size*algo.w, 0+node//size*algo.w, node%size*algo.w + algo.w -0, node//size*algo.w + algo.w-0, width=0, fill=path_colours[index])
                 algo.cloned.delete(algo.cloned.gettags("del"))
                 algo.draw_maze(algo.cloned, line_colour)
-                algo_steps = ctk.CTkLabel(results_frame, text=f'Optimal Path: {len(self.path2)} Steps', font=('Upheaval TT (BRK)', 33))
-                algo_steps.place(x=10, y=300)
+                algo_steps = ctk.CTkLabel(results_frame, text=f'Optimal Path: {len(self.path2)} Steps', text_color=('#608f90','#a1d0d1'), font=('Upheaval TT (BRK)', 33))
+                if self.mode == 'single':
+                    algo_steps.place(x=10, y=300)
+                    difference = ctk.CTkLabel(results_frame, text=f'Difference: {algo.get_moves("single")-len(self.path2)} Steps', font=('Upheaval TT (BRK)', 33))
+                    difference.place(x=10, y=340)                
+                else:
+                    algo_steps.place(x=10, y=350)
+                    p1_diff = ctk.CTkLabel(results_frame, text=f'red Difference: {algo.get_moves("multi")[0]-len(self.path2)}', font=('Upheaval TT (BRK)', 33))
+                    p1_diff.place(x=10, y=410)
+                    p2_diff = ctk.CTkLabel(results_frame, text=f'yellow Difference: {algo.get_moves("multi")[1]-len(self.path2)}', font=('Upheaval TT (BRK)', 33))
+                    p2_diff.place(x=10, y=440)
 
         def show_canvas():
             algo.play_click_sound()
@@ -811,9 +836,11 @@ class Results(Page): #singleplayer results screen
         return_button = ctk.CTkButton(results_frame, corner_radius=8, border_width=3, height=60, width=200, fg_color=('#96a672','#2a4f38'), text='New Game', font=('Upheaval TT (BRK)', 35), command=self.return_button)
         return_button.place(x=10, y=565)
 
-        retry_button = ctk.CTkButton(results_frame, corner_radius=8, border_width=3, height=60, width=200, text='Retry', font=('Upheaval TT (BRK)', 35), command=self.retry_button)
-        retry_button.place(x=265, y=565)
-        
+        retry_button = ctk.CTkButton(results_frame, corner_radius=8, border_width=3, height=60, width=100, text='REDO', font=('Upheaval TT (BRK)', 35), command=self.retry_button)
+        retry_button.place(x=245, y=565)
+
+        home_button = ctk.CTkButton(results_frame, corner_radius=8, border_width=3, height=60, width=100, text='HOME', font=('Upheaval TT (BRK)', 35), command=self.home_button)
+        home_button.place(x=380, y=565)
 class Window(ctk.CTkFrame): #create main window
     def __init__(self, *args, **kwargs):
         ctk.CTkFrame.__init__(self, *args, **kwargs)

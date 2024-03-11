@@ -312,7 +312,7 @@
     "date created": "Dec 25 2023 17:39:13",
     "last modified by": "Lifu Yang",
     "created with": "CTk Theme Builder v2.5.1",
-    "last modified": "Mar 04 2024 11:03:40",
+    "last modified": "Mar 09 2024 01:57:30",
     "keystone colour": "#3c5064",
     "harmony method": "Tetradic",
     "harmony differential": null,
@@ -351,8 +351,8 @@
     "border_width_checked": 6,
     "border_width_unchecked": 3,
     "fg_color": [
-      "#82925e",
-      "#11202b"
+      "#608f90",
+      "#a1d0d1"
     ],
     "border_color": [
       "#3d452c",
