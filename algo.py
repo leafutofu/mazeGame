@@ -7,32 +7,48 @@ import pygame
 pygame.mixer.init() #initialises the pygame mixer to play sounds
 
 def play_click_sound():
-    pygame.mixer.music.load("assets/click.mp3") #plays a clicking sound whenever called
+    #plays a clicking sound whenever called
+    pygame.mixer.music.load("assets/click.mp3") 
     pygame.mixer.music.play(loops=0)
 
-sound_allowed = True #determines whether to play the move sound whenever a player moves
+#determines whether to play the move sound whenever a player moves
+sound_allowed = True
 def play_move_sound():
     if sound_allowed:
-        pygame.mixer.music.load("assets/move.mp3") #plays a sound whenever called
+         #plays a sound whenever called
+        pygame.mixer.music.load("assets/move.mp3")
         pygame.mixer.music.play(loops=0)
 
 # NODES AND VERTICES ARE USED INTERCHANGEABLY (as they are the same in graph theory)
-class Graph: #creates a graph object of size (n*n) where size = n
+
+#creates a graph object of size (n*n) where size = n
+class Graph:
     def __init__(self, size):
         global w, adj_mat
-        w = 600 / size #width of each cell is the width of the canvas (600 pixels) divided by the size (number of rows/columns)
-        self.size = size #number of rows/columns
-        self.num_nodes = self.size**2 #number of total nodes in the graph
-        adj_mat = [[0 for column in range(self.num_nodes)] #adjacency matrix for the graph
-                        for row in range(self.num_nodes)] #in this case, 0 means there is an edge between the two nodes and 1 means there isn't an edge between the two nodes
-                                                          #this could be seen as counterintuitive, but it means that 1 implies there is a wall between two cells.
+        #width of each cell is the width of the canvas (600 pixels) divided by the size (number of rows/columns)
+        w = 600 / size
+        #number of rows/columns
+        self.size = size
+        #number of total nodes in the graph
+        self.num_nodes = self.size**2
+        """
+        adjacency matrix for the graph
+        in this case, 0 means there is an edge between the two nodes and 1 means there isn't an edge between the two nodes
+        this may seem counterintuitive, but it means that 1 implies there is a wall between two cells.
+        """
+        adj_mat = [[0 for column in range(self.num_nodes)]
+                        for row in range(self.num_nodes)] 
         
         #Removes the edges between all of the node (adding walls between nodes in a grid graph, ensuring that walls are added only within the boundaries of the grid and do not exceed them.)
         for node in range(self.num_nodes):
-            if (node+1)%self.size != 0: #ensures node is not at the end of a row
-                self.add_wall(node, node+1) #adds a wall between the current cell and the cell to the immediate right unless the cell is at the end of a row
-            if node+self.size <= self.size**2 - 1: #ensures node is not on the bottom row
-                self.add_wall(node, node+self.size) #adds a wall between the current cell and the cell immediately beneath it unless it is on the bottom row
+            #ensures node is not at the end of a row
+            if (node+1)%self.size != 0: 
+                #adds a wall between the current cell and the cell to the immediate right unless the cell is at the end of a row
+                self.add_wall(node, node+1)
+            #ensures node is not on the bottom row
+            if node+self.size <= self.size**2 - 1:
+                #adds a wall between the current cell and the cell immediately beneath it unless it is on the bottom row
+                self.add_wall(node, node+self.size)
     
     #Function to remove edges between two nodes (add walls between two cells node1 and node2)
     def add_wall(self, node1, node2):
@@ -150,22 +166,32 @@ class Graph: #creates a graph object of size (n*n) where size = n
                     #carve east
                     self.remove_wall(self.size*row+node, self.size*row+node+1)
 
-    def Imperfect(self): #A function to randomly remove walls in an already generated maze (activated in the settings page under 'generate imperfact maze')
-        for node in range(self.num_nodes): #for each cell in the maze
-            if (node+1) % self.size != 0: #if the cell is not at the last column
-                if self.detect_wall(node, node+1) and random.randrange(self.size*2) == 1: #if there is a wall between the cell and the next cell to the right
-                    self.remove_wall(node, node+1) #randomly remove a wall between these two cells with the probability of removal being 1 in half of the size of the maze
-                                                   #i.e. if the maze was 6x6, the probability will be 1/12
-            if node < (self.num_nodes-self.size): #same but to remove horizontal walls instead
+    #A function to randomly remove walls in an already generated maze (activated in the settings page under 'generate imperfact maze')
+    def Imperfect(self):
+        """
+        For each cell in the maze, if the cell is not at the last column and there is a wall between the cell and its neighbours towards the right
+            randomly decide if that wall should be removed, with the probability of removal being 1/(2*number of columns or rows)
+            i.e. if the maze was 6x6, the probability will be 1/12
+        
+        If the cell is not at the last row and there is a wall between the cell and its neighbour below it
+            randomly decide to remove wall between these two cells
+        """
+        for node in range(self.num_nodes):
+            if (node+1) % self.size != 0:
+                if self.detect_wall(node, node+1) and random.randrange(self.size*2) == 1: 
+                    self.remove_wall(node, node+1)
+            if node < (self.num_nodes-self.size):
                 if self.detect_wall(node, node+self.size) and random.randrange(self.size*2) == 1:
                     self.remove_wall(node, node+self.size)
 
-def create_canvas(frame, canvas_colour): #function to create the maze canvas and pass to the main program
+#function to create the maze canvas and pass to the main program
+def create_canvas(frame, canvas_colour):
     global canvas_m
     canvas_m = ctk.CTkCanvas(frame, width=600, height=600, bg=canvas_colour, highlightthickness=0)
     canvas_m.pack(anchor=ctk.CENTER, expand=True)
 
-def clone_canvas(widget, frame, canvas_colour, line_colour): #function to clone the canvas after a game has been concluded in order for the solved maze to be visualised
+#function to clone the canvas after a game has been concluded in order for the solved maze to be visualised
+def clone_canvas(widget, frame, canvas_colour, line_colour):
     global cloned
     # get the config of the canvas
     cfg = {key: widget.cget(key) for key in widget.configure()}
@@ -175,66 +201,89 @@ def clone_canvas(widget, frame, canvas_colour, line_colour): #function to clone 
     draw_maze(cloned, line_colour)
     cloned.pack(anchor=ctk.CENTER, expand=True)
 
-def draw_maze(canvas, line_colour): #function to draw the maze on the canvas according to the information in the adjacency matrix from the graph object
-    cols = int(600 / w) #number of columns/rows
-    linewidth = 2 #width of maze wall
-    canvas.delete(canvas.gettags("line")) #delete all the walls that were already in the canvas
-    for node in range(cols**2): #for each cell in the maze
-        directions = [(0, 1, 'R'), (1, 0, 'B')] #set the direction of right and bottom
+#function to draw the maze on the canvas according to the information in the adjacency matrix from the graph object
+def draw_maze(canvas, line_colour):
+    #number of columns/rows
+    cols = int(600 / w)
+    #width of maze wall
+    linewidth = 2
+    #delete all the walls that were already in the canvas
+    canvas.delete(canvas.gettags("line"))
+    #for each cell in the maze
+    for node in range(cols**2):
+        directions = [(0, 1, 'R'), (1, 0, 'B')]
+        #consider the directions towards the right and bottom
         for dy, dx, direction in directions:
             try:
-                if adj_mat[node][node + dy * cols + dx] == 1: #for each direction, if the original cell and the cell in said direction are supposed to have a wall bewteen them
+                """
+                For each direction, if the original cell and the cell in said direction are supposed to have a wall bewteen them
+                    if the wall is between two horizontally adjacent cells
+                    draw a line/wall between these two cells
+                
+                    if the wall is between two vertically adjacent cells
+                    draw a line/wall bewteen these two cells
+                """
+                if adj_mat[node][node + dy * cols + dx] == 1:
                     r = node // cols #row number of current cell
                     c = node % cols #column number of current cell
-                    if direction == 'R': #if the wall is between two horizontally adjacent cells
-                        #create a line/wall between these two cells
+                    if direction == 'R':
                         canvas.create_line((c+1)*w,
                                            r * w-(linewidth/2),
                                            (c+1)*w,
                                            (r+1)*w+(linewidth/2), width=linewidth, tags='line', fill=line_colour) 
-                    elif direction == 'B': #if the wall is between two vertically adjacent cells
-                        #create a line/wall bewteen these two cells
+                    elif direction == 'B':
                         canvas.create_line(c * w-(linewidth/2),
                                            (r + 1) * w,
                                            (c + 1) * w+(linewidth/2),
                                            (r + 1) * w, width=linewidth, tags='line', fill=line_colour)
-            except IndexError: #if we are looking for a cell that is outside the maze (either to the right or to the bottom)
-                pass #ignore and continue
-    if canvas == canvas_m: #if the canvas we are drawing the maze on is a canvas that will be played on
+            #pass if we are looking for a cell that is outside the maze (either to the right or to the bottom)
+            except IndexError:
+                pass
+    #if the canvas we are drawing the maze on is a canvas that will be played on
+    if canvas == canvas_m:
         # draw a white x where the end is
         canvas.create_text(int(w*(cols-0.5)), int(w*(cols-0.5)), font=('Upheaval TT (BRK)', int(300/cols)), 
                            text='X', fill='white')
 
-def draw_player(mode): #function to draw the players onto the canvas/maze
+#function to draw the players onto the canvas/maze
+def draw_player(mode):
     global p1, p2, po
-    if mode == 'single': #if in singleplayer, draw only player 1
+    #if in singleplayer, draw only player 1
+    if mode == 'single':
         p1 = canvas_m.create_rectangle(4, 4, w-4, w-4, fill='#a1d0d1', width=1, outline='white')
-    if mode == 'multi': #if in multiplayer, draw player 1, player 2, 
-                        #and po (which is a rectangle half the size of a player that will be placed on top of the players whenever they overlap)
+    #if in multiplayer, draw player 1, player 2, and po (which is a rectangle half the size of a player that will be placed on top of the players whenever they overlap)
+    if mode == 'multi':
         p1 = canvas_m.create_rectangle(4, 4, w-4, w-4, fill='#c77373', width=0, outline='white')
         p2 = canvas_m.create_rectangle(4, 4, w-4, w-4, fill='#f4e59d', width=0, outline='white')
         po = canvas_m.create_rectangle(4, 4, w/2, w-4, fill='#c77373', width=0, outline='white')
 
-def h(mode, node=None): #heuristic
-    cols = int(600 / w) #cols is the number of rows/columns, in this case it is used to denote the goal
-    if mode == 'single': #for the singleplayer progress bar - calculates the manhattan distance between the player in the maze and the goal
+#heuristic function (manhattan distance)
+def h(mode, node=None):
+    #cols is the number of rows/columns, in this case it is used to denote the goal
+    cols = int(600 / w)
+    #for the singleplayer progress bar - calculates the manhattan distance between the player in the maze and the goal
+    if mode == 'single':
         coords = node_player(p1, 'manhattan')
         return cols-coords[0] + cols-coords[1]
-    if mode == 'multi': #for the multiplayer progress bars - "
+    #for the multiplayer progress bars - ...
+    if mode == 'multi':
         coord1 = node_player(p1, 'manhattan')
         coord2 = node_player(p2, 'manhattan')
         dist1 = cols-coord1[0] + cols-coord1[1]
         dist2 = cols-coord2[0] + cols-coord2[1]
         return [dist1, dist2]
-    if mode == 'a*': #for the a* search algorithm, calculates the manhattan distance between a node and the goal
+    #for the a* search algorithm, calculates the manhattan distance between a node and the goal
+    if mode == 'a*':
         x = node % cols + 1
         y = node // cols + 1
         return (cols-x) + (cols-y)
 
-def hex_to_RGB(hex_str): #function to convert hex to rgb values
+#function to convert hex to rgb values
+def hex_to_RGB(hex_str):
     return [int(hex_str[i:i+2], 16) for i in range(1,6,2)]
 
-def get_colour_gradient(c1, c2, n): #function to generate a gradient in the form of a list of n colours that vary slightly between two input colours
+#function to generate a gradient in the form of a list of n colours that vary slightly between two input colours
+def get_colour_gradient(c1, c2, n):
     assert n > 1
     c1_rgb = np.array(hex_to_RGB(c1))/255
     c2_rgb = np.array(hex_to_RGB(c2))/255
@@ -242,22 +291,27 @@ def get_colour_gradient(c1, c2, n): #function to generate a gradient in the form
     rgb_colours = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
     return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colours]
 
-
-def node_player(player, mode=None): #returns the node the player is on given coordinates of top left corner of player on canvas
-    cols = int(600 / w) #number of columns in the maze
-    coords = canvas_m.bbox(player) #finds the coordinates of the player's bounding box (tkinter specific)
+#returns the node the player is on given coordinates of top left corner of player on canvas
+def node_player(player, mode=None):
+    #number of columns in the maze
+    cols = int(600 / w)
+    #finds the coordinates of the player's bounding box (tkinter specific)
+    coords = canvas_m.bbox(player)
     x = coords[0] - 2 #adjusting coords
     y = coords[1] - 2
 
     node_x = int(x/w) #the x position of the node
     node_y = int(y/w) #the y position of the node
 
-    if mode == 'manhattan': #returns the x and y position for the progress bars
+    #returns the x and y position for the progress bars (called by the heuristic function when calculating distance for progress bars)
+    if mode == 'manhattan':
         return [node_x+1, node_y+1]
     else:
-        return node_y * cols + node_x #returns the node the player is on
+        #returns the node the player is on
+        return node_y * cols + node_x
 
-def future_pos(player, direction): #returns whether the future position of a move is viable (see move_p1 and move_p2 functions)
+#returns whether the future position of a move is viable (see move_p1 and move_p2 functions)
+def future_pos(player, direction):
     coords = canvas_m.bbox(player)
     x = coords[0] - 2
     y = coords[1] - 2
@@ -271,46 +325,63 @@ def future_pos(player, direction): #returns whether the future position of a mov
     if direction == 'E':
         return x+w
 
-order_list = [] #list to record which player finishes the fastest
+#list to record which player finishes the fastest
+order_list = []
 
-def detect_win(mode): #function to detect whether players have reached the goal node - is run every time the game updates to check
-    global p1allowed, p2allowed #variables to control whether you can move your player in multiplayer - if you have already reached the goal, you should not be able to move your player
+#function to detect whether players have reached the goal node - is run every time the game updates to check
+def detect_win(mode): 
+    #variables to control whether you can move your player in multiplayer - if you have already reached the goal, you should not be able to move your player
+    global p1allowed, p2allowed
+
     cols = int(600 / w)
-    p1coords = canvas_m.bbox(p1) #bounding box of player 1 or the player in singleplayer
-    if mode == 'single': #if detecting from a singleplayer game
-        if p1coords[0] == p1coords[1] and (cols-1)*w + 2 <= p1coords[0] <= (cols-1)*w + 4: #if the player is in the location of the goal
+    #bounding box of player 1 or the player in singleplayer
+    p1coords = canvas_m.bbox(p1)
+    #if detecting from a singleplayer game - if the player is in the location of the goal return True
+    if mode == 'single':
+        if p1coords[0] == p1coords[1] and (cols-1)*w + 2 <= p1coords[0] <= (cols-1)*w + 4:
             return True
-    elif mode == 'multi': #if detecting from a multiplayer game
+    """
+    if detecting from a multiplayer game
+        if player 1 finishes, append player 1's time to the order_list and disallow player 1 movement
+        if player 2 finishes, append player 2's time to the order_list and disallow player 2 movement
+        if the order_list is filled i.e. both players have finished, allow movement for potential next round, removes overlap and returns the order_list to the results page
+    """
+    if mode == 'multi':
         p2coords = canvas_m.bbox(p2) #bounding box of player 2 in multiplayer
-        if p1coords[0] == p1coords[1] and (cols-1)*w + 2 <= p1coords[0] <= (cols-1)*w + 4 and p1allowed: #if player 1 finishes
-            order_list.append(['p1', time.time()]) #appends player 1's time to the order_list
-            p1allowed = False #disallows movement of the player until player 2 also reaches the goal
-        if p2coords[0] == p2coords[1] and (cols-1)*w + 2 <= p2coords[0] <= (cols-1)*w + 4 and p2allowed: #if player 2 finishes
-            order_list.append(['p2', time.time()]) #appeds player 2's time to the order_list
-            p2allowed = False #disallows movement of the player until player 1 also reaches the goal
-        if len(order_list) == 2: #if the order_list is filled i.e both players have finished
-            p1allowed, p2allowed = True, True #allows movement for potential next round
-            canvas_m.moveto(po, -100, -100) #moves the 'overlap' off the canvas
-            return order_list #returns the order_list to the results page
-        return [False]
+        if p1coords[0] == p1coords[1] and (cols-1)*w + 2 <= p1coords[0] <= (cols-1)*w + 4 and p1allowed:
+            order_list.append(['p1', time.time()])
+            p1allowed = False
+        if p2coords[0] == p2coords[1] and (cols-1)*w + 2 <= p2coords[0] <= (cols-1)*w + 4 and p2allowed:
+            order_list.append(['p2', time.time()])
+            p2allowed = False
+        if len(order_list) == 2:
+            p1allowed, p2allowed = True, True
+            canvas_m.moveto(po, -100, -100)
+            return order_list
     
-def get_moves(mode): #function to get moves of players
+#function to get moves of players
+def get_moves(mode):
     if mode == 'single':
         return p1moves
     else:
         return [p1moves, p2moves]
 
-def check_overlap(): #function to check if the players in multiplayer are overlapping and if so moves the 'overlap' on top to represent overlapping
-    if node_player(p1) == node_player(p2): #if player 1 is on the same node as player 2
-        canvas_m.moveto(po, canvas_m.bbox(p1)[0], canvas_m.bbox(p1)[1]) #move the 'overlap' to that position
-        canvas_m.tag_raise(po) #raise it to the top so it is visible
+#function to check if the players in multiplayer are overlapping and if so moves the 'overlap' on top to represent overlapping
+def check_overlap():
+    #if player 1 is on the same node as player 2
+    #move the 'overlap' to that position and raise it to the top so it is visible else move it off the canvas if they are no longer overlapping
+    if node_player(p1) == node_player(p2):
+        canvas_m.moveto(po, canvas_m.bbox(p1)[0], canvas_m.bbox(p1)[1])
+        canvas_m.tag_raise(po)
     else:
-        canvas_m.moveto(po, -100, -100) #move it off the canvas if they are no longer overlapping
+        canvas_m.moveto(po, -100, -100)
 
 p1allowed = True #allows player 1 movement
 p2allowed = True #allows player 2 movement
 pmode = '' #variable that stores the mode of the current game i.e. whether it is singleplayer or multiplayer
-def move_p1(event): #function to move player 1 - called after keypress of W, A, S, or D
+
+#function to move player 1 - called after keypress of W, A, S, or D
+def move_p1(event):
     global p1moves
     while p1allowed:
         try:
@@ -397,7 +468,8 @@ def move_p2(event):
             break
 
 ret_start_allowed = False #activated in the settings page under 'allow return to start'
-def return_start(event): #a function that allows players to return to node 0 by pressing a key - togglable
+ #a  function that allows players to return to node 0 by pressing a key - togglable
+def return_start(event):
     while ret_start_allowed:
         try:
             if event.keysym.lower() == 'q':
