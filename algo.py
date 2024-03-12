@@ -358,6 +358,7 @@ def detect_win(mode):
             p1allowed, p2allowed = True, True
             canvas_m.moveto(po, -100, -100)
             return order_list
+        return [False]
     
 #function to get moves of players
 def get_moves(mode):
