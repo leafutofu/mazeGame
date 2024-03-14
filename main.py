@@ -1,72 +1,75 @@
-import customtkinter as ctk #for GUI
-import algo #import key algorithms
-import time #for timing
-from tkinter.messagebox import askyesno #for pop-up box when exiting the program
-from PIL import Image #to import images for buttons and backgrounds
-from queue import PriorityQueue #for a* search
+import customtkinter as ctk  # For the GUI.
+import algo  # Import key algorithms.
+import time  # For timing the players.
+from tkinter.messagebox import askyesno  # For pop-up box when exiting the program.
+from PIL import Image  # To import images for buttons and backgrounds.
+from queue import PriorityQueue  # For A* search.
 
-theme = '' #define theme
-ctk.set_default_color_theme("assets/HEDGE.json") #set overall theme to custom json file
+theme = ''  # Define theme.
+ctk.set_default_color_theme("assets/HEDGE.json")  # Set overall theme to custom json file.
 
 if theme == 'light':
-    #import background images
+    # Import background images.
     bg1 = ctk.CTkImage(Image.open('assets/grad1bg.png'), size=(1920, 1080)) 
     bg2 = ctk.CTkImage(Image.open('assets/bg1.png'), size=(900, 700))
     bg_set = ctk.CTkImage(Image.open('assets/grad1set.png'), size=(1920, 1080))
     bg_game = ctk.CTkImage(Image.open('assets/grad1game.png'), size=(1920, 1080))
     bg_res = ctk.CTkImage(Image.open('assets/grad1res.png'), size=(1920, 1080))
-    #define the canvas background colour and the wall colour
+    # Define the canvas background colour and the wall colour.
     canvas_colour = '#82925e' 
     line_colour = '#FFFFFF'
 else:
-    #import background images
+    # Import background images.
     bg1 = ctk.CTkImage(Image.open('assets/grad2bg.png'), size=(1920, 1080))
     bg2 = ctk.CTkImage(Image.open('assets/bg2.png'), size=(900, 700))
     bg_set = ctk.CTkImage(Image.open('assets/grad2set.png'), size=(1920, 1080))
     bg_game = ctk.CTkImage(Image.open('assets/grad2game.png'), size=(1920, 1080))
     bg_res = ctk.CTkImage(Image.open('assets/grad2res.png'), size=(1920, 1080))
-    #define the canvas background colour and the wall colour
+    # Define the canvas background colour and the wall colour.
     canvas_colour = '#16291d'
     line_colour = '#afbf8b'
 
-class Page(ctk.CTkFrame): #
+# The parent class that all page classes inherit.
+class Page(ctk.CTkFrame):
     def __init__(self, *args, **kwargs):
         ctk.CTkFrame.__init__(self, master=root, *args, **kwargs)
 
-    def show(self): #a function to raise all the widgets associated with a particular page to the top, displaying it on the window
+    def show(self):  # A function to raise all the widgets associated with a particular page to the top, displaying it on the window.
         self.lift()
 
+# The Main Menu page class - a child of the Page class.
 class mainMenu(Page):
     def __init__(self, controller, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
+        Page.__init__(self, *args, **kwargs)  # Inherits the page class.
 
-        m_frame = ctk.CTkFrame(self) #create a frame for the menu
+        m_frame = ctk.CTkFrame(self)  # Create a frame for the menu.
         m_frame.pack(side='top', expand=True, fill = 'both')
         
-        self.bg1label = ctk.CTkLabel(m_frame, image = bg1, text = '') #create label to place background image
+        self.bg1label = ctk.CTkLabel(m_frame, image = bg1, text = '')  # Create label to place background image.
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
 
         s_frame = ctk.CTkFrame(m_frame, height=700, width=900, corner_radius=0)
         s_frame.place(relx=0.5, rely=0.5, anchor='center')
 
-        self.bg2label = ctk.CTkLabel(s_frame, image = bg2, text = '') #create label to place 2nd background image (for buttons)
+        self.bg2label = ctk.CTkLabel(s_frame, image = bg2, text = '')  # Create label to place 2nd background image (for buttons).
         self.bg2label.place(relx=0.5, rely=0.5, anchor='center')
 
         title = ctk.CTkLabel(s_frame, text='HEDGE', font=('Upheaval TT (BRK)', 120))
         title.place(relx=0.5, rely=0.38, anchor='center')      
 
-        #coordinates of various buttons
+        # Coordinates of various buttons.
         mm_settingsX = 410
         mm_settingsY = 610
         quitX = 485
         quitY = 610
 
-        #sets current page variable to 'modeSelection' and shows the widgets associated with the mode selection page
+        # Sets current page variable to 'modeSelection' and shows the widgets associated with the mode selection page.
         def modeSelection_button():
             algo.play_click_sound()
-            controller.pages['modeSelection'].show() #shows widgets associated with the mode selection page
+            controller.pages['modeSelection'].show()  # Shows widgets associated with the mode selection page.
 
-        def check_position(event): #checks the coordinates of any mouse click on the window, and according to parameters, redirects to either the settings page or terminates the program.
+        # Checks the coordinates of any mouse click on the window, and according to parameters, redirects to either the settings page or terminates the program.
+        def check_position(event):
             if event.x >= mm_settingsX - 20 and event.x <= mm_settingsX + 20 \
             and event.y >= mm_settingsY - 20 and event.y <= mm_settingsY + 20:
                 controller.pages['settings'].show()
@@ -75,46 +78,48 @@ class mainMenu(Page):
                 if askyesno(title='Confirmation', message='Are you sure you want to quit?') == True:
                     root.destroy()
 
-        root.bind('<Button-1>', check_position) #binds the left mouse click to the check_position() function
+        # Binds the left mouse click to the check_position() function.
+        root.bind('<Button-1>', check_position)
 
-        #button styling
+        # Button styling.
         modeSelection_button = ctk.CTkButton(s_frame, width=170, height=50, corner_radius=8, border_width=2, text_color='#FFFFFF', font=('Upheaval TT (BRK)', 40), text='PLAY', command=modeSelection_button)
         modeSelection_button.place(relx=0.5, rely=0.57, anchor='center')
 
+# The Settings page class - a child of the Page class.
 class settings(Page):
     def __init__(self, controller, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
+        Page.__init__(self, *args, **kwargs)  # Inherits the page class.
 
-        #main frame - contains all widgets
+        # Main frame - contains all widgets.
         self.m_frame = ctk.CTkFrame(self, width=1920, height=1080)
         self.m_frame.place(relx=0.5, rely=0.5, anchor='center')
 
-        self.bg1label = ctk.CTkLabel(self.m_frame, image = bg_set, text='') #create label to place background image
+        self.bg1label = ctk.CTkLabel(self.m_frame, image = bg_set, text='')  # Create label to place background image.
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
 
-        #frame to contain switches on the left
+        # Frame to contain switches on the left.
         self.frame = ctk.CTkFrame(self.m_frame, width=440, height=600)
         self.frame.place(x=530, rely=0.5, anchor='center')
         
-        #frame to contain information on the right
+        # Frame to contain information on the right.
         self.info_frame = ctk.CTkFrame(self.m_frame, width = 650, height=540, corner_radius=12, bg_color=('#bfcba4','#34473b'))
         self.info_frame.place(x=1295, rely=0.52, anchor='center')
         self.info_frame.pack_propagate(0)
 
-        #label to place images - for the info_frame which will allow information in the form of images to be displayed
+        # Label to place images - for the info_frame which will allow information in the form of images to be displayed.
         self.info_label = ctk.CTkLabel(self.info_frame, text='')
         self.info_label.place(relx=0.48, rely=0, anchor='n')
 
-        #title
+        # Title.
         title_label = ctk.CTkLabel(self.frame, text='Settings', font=('Upheaval TT (BRK)', 50))
         title_label.place(x=0, y=0, anchor='nw')
         title_label2 = ctk.CTkLabel(self.frame, text='+ information ', font=('Upheaval TT (BRK)', 35, 'italic'), text_color=('#FFFFFF','#506d5a'))
         title_label2.place(x=100, y=40, anchor='nw')
 
-        #The radiobutton value
+        # The radiobutton value.
         radiobutton_value = ctk.StringVar(value="off")
 
-        #when any of the 4 radiobuttons are selected, the corresponding image is shown
+        # When any of the 4 radiobuttons are selected, the corresponding image is shown.
         def radiobutton_event():
             selection = radiobutton_value.get()
             if selection == 'theme':
@@ -140,19 +145,19 @@ class settings(Page):
         ret_button.place(x=10, y=242, anchor='nw')
         sound_button.place(x=10, y=302, anchor='nw')
 
-        #CHANGE THEME
+        # Change Theme.
         def theme_switch_event():
-            theme_button.invoke() #invokes the radiobutton to show the information about this particular switch
+            theme_button.invoke()  # Invokes the radiobutton to show the information about this particular switch.
             main.switch_theme()
         theme_switch_var = ctk.StringVar(value='dark')
         theme_switch = ctk.CTkSwitch(self.frame, text='    Theme', font=('Upheaval TT (BRK)', 20), text_color='#FFFFFF', command=theme_switch_event,
                                  variable=theme_switch_var, onvalue='light', offvalue='dark',
-                                 switch_width=50, switch_height=27) #true is imperfect
+                                 switch_width=50, switch_height=27)
         theme_switch.place(x=60, y=120, anchor='nw')
 
-        #Generate Imperfect mazes with multiple solutions
+        # Generate Imperfect mazes with multiple solutions.
         def gen_switch_event():
-            gen_button.invoke() #invokes the radiobutton to show the information about this particular switch
+            gen_button.invoke()  # Invokes the radiobutton to show the information about this particular switch.
             if gen_switch_var.get() == 'on':
                 main.sg.imperfect = True
                 main.mg.imperfect = True
@@ -162,12 +167,12 @@ class settings(Page):
         gen_switch_var = ctk.StringVar(value='off')
         gen_switch = ctk.CTkSwitch(self.frame, text='    Generate imperfect mazes', font=('Upheaval TT (BRK)', 20), text_color='#FFFFFF', command=gen_switch_event,
                                  variable=gen_switch_var, onvalue='on', offvalue='off',
-                                 switch_width=50, switch_height=27) #true is imperfect
+                                 switch_width=50, switch_height=27)
         gen_switch.place(x=60, y=180, anchor='nw')
 
-        #MODE - PRESS Q TO RETURN TO START
+        # Allows returning to start by pressing Q.
         def ret_switch_event():
-            ret_button.invoke() #invokes the radiobutton to show the information about this particular switch
+            ret_button.invoke()  # Invokes the radiobutton to show the information about this particular switch.
             if ret_switch_var.get() == 'on':
                 algo.ret_start_allowed = True
             elif ret_switch_var.get() == 'off':
@@ -178,9 +183,9 @@ class settings(Page):
                                  switch_width=50, switch_height=27)
         ret_switch.place(x=60, y=240, anchor='nw')
 
-        #Turn off game sound
+        # Turn off game sound.
         def sound_switch_event():
-            sound_button.invoke() #invokes the radiobutton to show the information about this particular switch
+            sound_button.invoke()  # Invokes the radiobutton to show the information about this particular switch.
             if sound_switch_var.get() == 'on':
                 algo.sound_allowed = True
             elif sound_switch_var.get() == 'off':
@@ -191,7 +196,7 @@ class settings(Page):
                                  switch_width=50, switch_height=27)
         sound_switch.place(x=60, y=300, anchor='nw')
 
-        #displays how to play the game
+        # Displays tutorial on how to play the game.
         def tutorial_button():
             theme_button.deselect()
             gen_button.deselect()
@@ -202,34 +207,36 @@ class settings(Page):
         tutorial_button = ctk.CTkButton(self.frame, height=70, width=300, corner_radius=10, border_width=0, font=('Upheaval TT (BRK)', 30), text="🛈 HOW TO PLAY", command=tutorial_button)
         tutorial_button.place(x=30, y=400, anchor='nw')
 
-        def back_button(): #directs to either the main menu or mode selection page depending on the contents of the page stack
+        # Back to main menu.
+        def back_button():
             algo.play_click_sound()
-            controller.pages['mainMenu'].show() #shows the page previous to the settings page
+            controller.pages['mainMenu'].show()
         
         back_button = ctk.CTkButton(self.frame, height=40, corner_radius=8, border_width=2, font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
         back_button.place(x=0, y=550, anchor='nw')
 
-class modeSelection(Page): #selects singleplayer or multiplayer
+# The Mode Selection page class - a child of the Page class.
+class modeSelection(Page):  # Selects singleplayer or multiplayer.
     def __init__(self, controller, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
+        Page.__init__(self, *args, **kwargs)  # Inherits the page class.
 
-        self.bg1label = ctk.CTkLabel(self, image = bg1, text = '') #create label to place background image
+        self.bg1label = ctk.CTkLabel(self, image = bg1, text = '')  # Create label to place background image.
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
         
-        frame_ms = ctk.CTkFrame(self, width=900, height=700) #creates frame for the mode selection page
+        frame_ms = ctk.CTkFrame(self, width=900, height=700)  # Creates frame for the mode selection page.
         frame_ms.place(relx=0.5, rely=0.5, anchor='center')
 
-        #redirects to singleplayer options page
+        # Redirects to singleplayer options page.
         def spOptions_button():
             algo.play_click_sound()
             controller.pages['spOptions'].show()
         
-        #redirects to multiplayer options page
+        # Redirects to multiplayer options page.
         def mpOptions_button():
             algo.play_click_sound()
             controller.pages['mpOptions'].show()
 
-        #redirects to previous page
+        # Redirects to previous page.
         def back_button():
             algo.play_click_sound()
             controller.pages['mainMenu'].show()
@@ -238,6 +245,7 @@ class modeSelection(Page): #selects singleplayer or multiplayer
 
         back_button.grid(row=0, column=0, padx=(0,537), pady=(0,494))
         
+        # Load images for the buttons
         spOptions_image = ctk.CTkImage(Image.open("assets/sp_button.png"), size=(245,245))
         mpOptions_image = ctk.CTkImage(Image.open("assets/mp_button.png"), size=(250,250))
 
@@ -247,11 +255,12 @@ class modeSelection(Page): #selects singleplayer or multiplayer
         spOptions_button.grid(row=0, column=0, padx=(0,399), pady=(36,0))
         mpOptions_button.grid(row=0, column=0, padx=(399,0), pady=(36,0))
 
-class spOptions(Page): #screen to select generation style and grid size for singleplayer
+# The Singleplayer Options page class - a child of the Page class.
+class spOptions(Page): # Screen to select generation style and grid size for singleplayer.
     def __init__(self, controller, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
+        Page.__init__(self, *args, **kwargs)  # Inherits the page class.
 
-        self.bg1label = ctk.CTkLabel(self, image = bg1, text = '') #create label to place background image
+        self.bg1label = ctk.CTkLabel(self, image = bg1, text = '')  # Create label to place background image.
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
 
         m_frame = ctk.CTkFrame(self, width=900, height=700)
@@ -260,19 +269,19 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         s_frame = ctk.CTkFrame(m_frame, width=675, height=380, border_width=5, corner_radius=15)
         s_frame.place(relx=0.5, rely=0.55, anchor='center')
 
-        #called for every interation with the drop down box
+        # Defines the parameters list
+        self.params = []
+
+        # Called for every interation with the drop down box.
         def combobox_callback(choice):
-            if choice == 0:
-                self.sp_params = [] #creates sp_params if combobox is not selected and the start game button is pressed
-            elif choice == -1: #sets the current slider value when called
-                self.sp_params[0] = int(get_current_value())
-            else:
-                self.sp_params = [int(get_current_value()), choice] #defines the sp_params list when a choice is made
+            # Redefines the params list when a choice is made.
+            # It gets the current slider value and the choice of the drop down box.
+            self.params = [int(get_current_value()), choice]
 
         title_label = ctk.CTkLabel(s_frame, text='-Singleplayer Options-', font=('Upheaval TT (BRK)', 35), text_color='#FFFFFF')
         title_label.place(relx=0.5, rely=0.12, anchor='center')
 
-        #the drop down box
+        # The drop down menu.
         combobox = ctk.CTkComboBox(s_frame, width=400, height=50,
                                    state="readonly",
                                    values=['Depth First Search', 'Hunt-and-Kill', 'Sidewinder'], 
@@ -282,17 +291,36 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         combobox.set('Select a generation algorithm')
         combobox.place(relx=0.5, rely=0.31, anchor='center')
 
+        """
+        To implement the slider, we need to update the displayed value of the slider going to the
+        gui every time the slider is changed.
+        We also need to get the final slider value when the user presses the start button.
+        
+        To do this, a slider value is defined, three functions are created:
+            - get_current_value()
+            - format_value()
+            - slider_changed()
+        
+        The slider_changed() function is called every time the user interacts with the slider,
+        it changes the displayed value of the maze size on the GUI
+        It calls the get_current_value() function, and formats the output using the format_value() function.
+        
+        When the start game button is pressed, in order to get the current slider value, we update the parameter list passed to the game object.
+        
+        """
+
         slider_value = ctk.DoubleVar()
 
-        #returns current slider value
+        # Returns current slider value.
         def get_current_value():
             value = '{: .0f}'.format(slider_value.get()*25+5)
             return value
         
+        # Formats the value to be displayed on the GUI
         def format_value(value):
             return f'{value} x{value}'
         
-        #called every time the slider is changed - updates the label on the GUI
+        # Called every time the slider is changed - updates the label on the GUI.
         def slider_changed(event):
             slider_value_label.configure(text=format_value(get_current_value()))
 
@@ -302,23 +330,30 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         slider_value_label = ctk.CTkLabel(s_frame, text=format_value(get_current_value()), text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30))
         slider_value_label.place(relx=0.55, rely=0.51, anchor='center')
 
-        #slider for maze size
+        # Slider for maze size.
         slider = ctk.CTkSlider(s_frame, width=400, button_color='#FFFFFF', button_hover_color='#cccccc', variable=slider_value, command=slider_changed)
         slider.place(relx=0.5, rely=0.66, anchor='center')
 
-        #displays on GUI when nothing is selected in the drop down and the play button is pressed
+        # Displays an error message on the GUI when nothing is selected in the drop down and the play button is pressed.
         combobox_error_message = ctk.CTkLabel(m_frame, text='', text_color='#e53935', font=('Upheaval TT (BRK)', 15))
         combobox_error_message.grid(row=0, column=0, padx=(0,260), pady=(465, 0))
 
-        #called when the play button is pressed
+        # Called when the play button is pressed.
         def spGame_button():
             algo.play_click_sound()
-            if self.sp_params != []: #if the parameters are selected
-                combobox_callback(-1) #update the current slider value
-                main.sg.spGameCanvas('new') #calls the function in the next page to start the maze generation
-                algo.pmode = '' #set the mode for algo file to be singleplayer to prevent checking overlap in move_p1()
+            """
+            If the parameters are selected:
+            -Update the current slider value.
+            -Call the function in the next page to start the maze generation.
+            -Set the mode for algo file to be singleplayer to prevent checking overlap in move_p1() (pmode).
+            -Show the singleplayer game page
+            """
+            if self.params != []:
+                self.params[0] = int(get_current_value())
+                main.sg.spGameCanvas('new')
+                algo.pmode = ''
                 controller.pages['spGame'].show()
-                #reset
+                # Reset error message.
                 combobox_error_message.configure(text='')
             else:
                 combobox_error_message.configure(text='error : no maze generation algorithm selected')
@@ -334,19 +369,18 @@ class spOptions(Page): #screen to select generation style and grid size for sing
         back_button = ctk.CTkButton(m_frame, height=40, corner_radius=8, border_width=3, text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
         back_button.grid(row=0, column=0, padx=(0,536), pady=(0,494))
 
-        combobox_callback(0)
-
-class spGame(Page): #singleplayer game screen   
+# The Singleplayer Game page class - a child of the Page class.
+class spGame(Page):  # Singleplayer game screen.
     def __init__(self, controller, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
+        Page.__init__(self, *args, **kwargs)  # Inherits the page class.
 
-        self.controller = controller #controller for changing pages
-        self.imperfect = False #determines whether imperfect mazes are generated (settings)
+        self.controller = controller  # Controller for changing pages.
+        self.imperfect = False  # Determines whether imperfect mazes are generated (settings).
 
-        self.bg1label = ctk.CTkLabel(self, image = bg_game, text = '') #create label to place background image
+        self.bg1label = ctk.CTkLabel(self, image = bg_game, text = '')  # Create label to place background image.
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
 
-        #title
+        # Title.
         self.title_frame = ctk.CTkFrame(self)
         self.title_frame.place(relx=0.5, rely=0.1, anchor='center')
         title = ctk.CTkLabel(self.title_frame, text=" HEDGE ", text_color='#82925e', font=('Upheaval TT (BRK)', 50))
@@ -354,139 +388,155 @@ class spGame(Page): #singleplayer game screen
         title.pack()
         subheading.pack()
         
-        #frame to contain GUI information on the left
+        # Frame to contain GUI information on the left.
         left_frame = ctk.CTkFrame(self, height=228, width=380)
         left_frame.place(relx=0.15, rely=0.495, anchor='center')
         
-        #styling
+        # Styling.
         left_image = ctk.CTkImage(Image.open("assets/game_left.png"), size=(191, 227))
         left_image_label = ctk.CTkLabel(left_frame, text='', image=left_image)
         left_image_label.place(relx=0, rely=0.5, anchor='w')
 
-        #info about algorithm and maze size on GUI
+        # Info about algorithm and maze size on GUI.
         self.algo_label = ctk.CTkLabel(left_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35, 'italic'))
         self.grid_label = ctk.CTkLabel(left_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35, 'italic'))
         self.algo_label.place(x=150, rely=0.11)
         self.grid_label.place(x=150, rely=0.61)
 
-        #
-
-        #frame to contain GUI information on the right
+        # Frame to contain GUI information on the right.
         right_frame = ctk.CTkFrame(self, height=228, width=380)
         right_frame.place(relx=0.85, rely=0.495, anchor='center')
 
-        #styling
+        # Styling.
         right_image = ctk.CTkImage(Image.open('assets/sg_right.png'), size=(233, 227))
         right_image_label = ctk.CTkLabel(right_frame, text='', image=right_image)
         right_image_label.place(x=380, rely=0.5, anchor='e')
     
-        #displays the steps made so far and the time elapsed
+        # Displays the steps made so far and the time elapsed.
         self.step_label = ctk.CTkLabel(right_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 45, 'italic'))
         self.time_label = ctk.CTkLabel(right_frame, text='', text_color='#82925e', font=('Upheaval TT (BRK)', 50, 'italic'))
         self.step_label.place(x=100, rely=0.145, anchor='w')
         self.time_label.place(x=100, rely=0.645, anchor='w')
 
-        #progress bar - utilises the manhattan distance between the player's current position and the goal
+        # Progress bar - utilises the manhattan distance between the player's current position and the goal.
         self.progress = ctk.CTkProgressBar(self, width=600, height=5, corner_radius=5, progress_color='#a1d0d1')
         self.progress.set(0)
         self.progress.place(relx=0.5, rely=0.9, anchor='center')
 
-        #called when the back button is pressed
+        # Called when the back button is pressed.
         def back_button():
             self.update = False
-            controller.pages['mainMenu'].show()
-            #styling
+            controller.pages['spOptions'].show()
+            # Styling.
             self.retry_label.pack_forget()
         
         back_button = ctk.CTkButton(self, height=40, corner_radius=8, border_width=3, text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="QUIT", command=back_button)
         back_button.place(relx=0.1, rely=0.1, anchor='center')
             
-
     def createNewMaze(self):
+        """
+        Creates a maze using algo.py and the parameters passed from singleplayer options
+        Only called when a new game is played.
+        """
         self.game_frame = ctk.CTkFrame(self, width=600, height=600)
         self.game_frame.place(relx=0.5, rely=0.5, anchor='center')
         
-        #displays the canvas created in the algo file
+        # Displays the canvas created in the algo file.
         algo.create_canvas(self.game_frame, canvas_colour)
-        #creates a graph object
-        algo.graph = algo.Graph(main.so.sp_params[0])
+        # Creates a graph object - this is the foundation of the maze.
+        algo.graph = algo.Graph(main.so.params[0])
 
-        self.grid_label.configure(text=f'{main.so.sp_params[0]} x {main.so.sp_params[0]} ')
+        self.grid_label.configure(text=f'{main.so.params[0]} x {main.so.params[0]} ')
      
-        #generates a maze depending on the algorithm selected
-        if main.so.sp_params[1] == 'Depth First Search':
-            algo.graph.DFS() #calls DFS() on the graph object to generate a DFS maze
-            self.algo_label.configure(text='DFS ') #configures the label
-        elif main.so.sp_params[1] == 'Hunt-and-Kill':
-            algo.graph.Hunt_and_Kill() #calls Hunt_and_Kill() on the graph object to generate a hunt and kill maze
-            self.algo_label.configure(text='Hunt - Kill') #configures the label
-        elif main.so.sp_params[1] == 'Sidewinder':
-            algo.graph.Sidewinder() #calls Sidewinder() on the graph object to generate a sidewinder maze
-            self.algo_label.configure(text='Sidewinder ') #configures the label
+        # Generates a maze depending on the algorithm selected.
+        if main.so.params[1] == 'Depth First Search':
+            algo.graph.DFS()  # Calls DFS() on the graph object to generate a DFS maze.
+            self.algo_label.configure(text='DFS ')  # Configures the label on the GUI
+        elif main.so.params[1] == 'Hunt-and-Kill':
+            algo.graph.Hunt_and_Kill()  # Calls Hunt_and_Kill() on the graph object to generate a hunt and kill maze.
+            self.algo_label.configure(text='Hunt - Kill')  # Configures the label on the GUI
+        elif main.so.params[1] == 'Sidewinder':
+            algo.graph.Sidewinder()  # Calls Sidewinder() on the graph object to generate a sidewinder maze.
+            self.algo_label.configure(text='Sidewinder ')  # Configures the label on the GUI
 
         if self.imperfect:
-            #if the imperfect maze switch is toggled on in settings, then make the graph imperfect
+            # If the imperfect maze switch is toggled on in settings, then make the graph imperfect.
             algo.graph.Imperfect()
         
-        #draw the maze on the canvas
+        # Draw the maze on the canvas.
         algo.draw_maze(algo.canvas_m, line_colour)
         
 
     def spGameCanvas(self, mode):
-        #called only when the play button is pressed - NOT at initialisation
-        
-        #starts the update loop
+        """
+        A function that is called only when the play button is pressed 
+        - NOT called at initialisation - which ensures that the game update loop only activates when 
+        a player presses play in an options menu.
+        """
+
+        # Starts the update loop.
         self.update = True
-        #starts the time
+        # Starts the time.
         self.sp_time_start = time.time()
 
-        #no player 2 in singleplayer
+        # No player 2 in singleplayer.
         algo.p2 = None
 
-        #styling
+        # Styling.
         self.retry_label = ctk.CTkLabel(self.title_frame, text='repeated', text_color='#ca4754', font=('Upheaval TT (BRK)', 15))
         self.retry_label.pack()
 
         if mode == 'new':
-            #when a new maze is generated
+            # When a new maze is generated.
+            # Calls the createNewMaze() function
             self.createNewMaze()
+            # Styling.
             self.retry_label.pack_forget()
         elif mode == 'retry':
-            #after a maze is solved, the player can choose to replay the maze
-            self.retry_label.pack()
-            #removes the previous player sprite
+            # Removes the previous player sprite.
             algo.canvas_m.delete(algo.p1)
+            # Styling.
+            self.retry_label.pack()
 
-        #draws the player
+        # Draws the player.
         algo.draw_player('single')
-        #sets the moves to 0
+        # Sets the player's moves to 0.
         algo.p1moves = 0
 
-        #update function - called every 100ms
+        # Update function - called every 100ms.
         def spUpdate():
-            if algo.detect_win('single'): #if a win is detected
+            """
+            Constantly detects for wins using algo.py.
+            If a win is detected, stop updating
+            If a win is not detected then keep updating
+            """
+            # If a win is detected.
+            if algo.detect_win('single'): 
                 self.update = False
-                self.sp_time_end = time.time() #stops the time
-                main.r.results('single') #call results page
-                self.controller.pages['Results'].show() #shows the result page
-                #reset
+                self.sp_time_end = time.time()  # Stops the time.
+                main.r.results('single')  # Call results page so it can display the relevant information.
+                self.controller.pages['Results'].show()  # Shows the result page.
+                # Styling.
                 self.retry_label.pack_forget()
 
-            if self.update == True: #update loop
-                #update the progress bar
-                self.progress.set(1-(algo.h('single')/(2*main.so.sp_params[0]))) #h() is heuristic function
-                #update the step label and the time label
+            # If not won yet, refresh the elements on the GUI.
+            if self.update == True:
+                # Update the progress bar.
+                self.progress.set(1-(algo.h('single')/(2*main.so.params[0])))  # h() is heuristic function.
+                # Update the step label and the time label.
                 self.step_label.configure(text=f'{algo.get_moves("single")}  ')
                 self.time_label.configure(text=f'{round(time.time()-self.sp_time_start, 1)}  ')
+                
                 root.after(100, spUpdate)
 
-        root.after(0, spUpdate) #first run of the loop
+        root.after(0, spUpdate)  # First run of the loop
 
-class mpOptions(Page): #screen to select generation style and grid size for multiplayer
+# The Multiplayer Options page class - a child of the Page class.
+class mpOptions(Page): # Screen to select generation style and grid size for multiplayer.
     def __init__(self, controller, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
+        Page.__init__(self, *args, **kwargs)  # Inherits the page class.
 
-        self.bg1label = ctk.CTkLabel(self, image = bg1, text = '') #create label to place background image
+        self.bg1label = ctk.CTkLabel(self, image = bg1, text = '')  # Create label to place background image.
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
 
         m_frame = ctk.CTkFrame(self, width=900, height=700)
@@ -495,19 +545,19 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         s_frame = ctk.CTkFrame(m_frame, width=675, height=380, border_width=5, corner_radius=15)
         s_frame.place(relx=0.5, rely=0.55, anchor='center')
 
-        #called for every interation with the drop down box
+        # Defines the parameters list
+        self.params = [None, None, None]
+
+        # Called for every interation with the drop down box.
         def combobox_callback(choice):
-            if choice == 0:
-                self.mp_params = [None, None, None] #creates sp_params if combobox is not selected and the start game button is pressed
-            elif choice == -1: #sets the current slider value when called
-                self.mp_params[0] = int(get_current_value())
-            else:
-                self.mp_params = [int(get_current_value()), choice, condition_switch_var.get()]
+            # Redefines the params list when a choice is made.
+            # It gets the current slider value, the choice of the drop down box, and the win condition.
+            self.params = [int(get_current_value()), choice, condition_switch_var.get()]
 
         title_label = ctk.CTkLabel(s_frame, text='-Multiplayer Options-', font=('Upheaval TT (BRK)', 35), text_color='#FFFFFF')
         title_label.place(relx=0.5, rely=0.12, anchor='center')
 
-        #the drop down box
+        # The drop down menu.
         combobox = ctk.CTkComboBox(s_frame, width=400, height=50,
                                    state="readonly",
                                    values=['Depth First Search', 'Hunt-and-Kill', 'Sidewinder'], 
@@ -517,17 +567,36 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         combobox.set('Select a generation algorithm')
         combobox.place(relx=0.5, rely=0.31, anchor='center')
 
+        """
+        To implement the slider, we need to update the displayed value of the slider going to the
+        gui every time the slider is changed.
+        We also need to get the final slider value when the user presses the start button.
+        
+        To do this, a slider value is defined, three functions are created:
+            - get_current_value()
+            - format_value()
+            - slider_changed()
+        
+        The slider_changed() function is called every time the user interacts with the slider,
+        it changes the displayed value of the maze size on the GUI
+        It calls the get_current_value() function, and formats the output using the format_value() function.
+        
+        When the start game button is pressed, in order to get the current slider value, we update the parameter list passed to the game object.
+        
+        """
+
         slider_value = ctk.DoubleVar()
         
-        #returns current slider value
+        # Returns current slider value.
         def get_current_value():
             value = '{: .0f}'.format(slider_value.get()*25+5)
             return value
         
+        # Formats the value to be displayed on the GUI
         def format_value(value):
             return f'{value} x{value}'
         
-        #called every time the slider is changed - updates the label on the GUI
+        # Called every time the slider is changed - updates the label on the GUI.
         def slider_changed(event):
             slider_value_label.configure(text=format_value(get_current_value()))
 
@@ -537,18 +606,18 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         slider_value_label = ctk.CTkLabel(s_frame, text=format_value(get_current_value()), text_color='#FFFFFF', font=('Upheaval TT (BRK)', 30))
         slider_value_label.place(relx=0.55, rely=0.51, anchor='center')
 
-        #slider for maze size
+        # Slider for maze size.
         slider = ctk.CTkSlider(s_frame, width=400, button_color='#FFFFFF', button_hover_color='#cccccc', variable=slider_value, command=slider_changed)
         slider.place(relx=0.5, rely=0.66, anchor='center')
 
-        #called every time the switch is changed
+        # Called every time the switch is changed.
         def condition_switch_event():
             if condition_switch_var.get() == 'steps':
-                self.mp_params[2] = 'steps'
+                self.params[2] = 'steps'
             else:
-                self.mp_params[2] = 'speed'
+                self.params[2] = 'speed'
         
-        #switch to change win condition
+        # Switch to change win condition.
         condition_switch_var = ctk.StringVar(value='speed')
         condition_switch = ctk.CTkSwitch(s_frame, text='', command=condition_switch_event, variable=condition_switch_var, onvalue='steps', offvalue='speed', 
                                          switch_width=50, switch_height=27)
@@ -559,19 +628,26 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         condition_label_2 = ctk.CTkLabel(s_frame, text='Least Steps', font=('Upheaval TT (BRK)', 15))
         condition_label_2.place(relx=0.43, rely=0.84, anchor='center')
 
-        #displays on GUI when nothing is selected in the drop down and the play button is pressed
+        # Displays an error message on the GUI when nothing is selected in the drop down and the play button is pressed.
         combobox_error_message = ctk.CTkLabel(m_frame, text='', text_color='#e53935', font=('Upheaval TT (BRK)', 15))
         combobox_error_message.grid(row=0, column=0, padx=(0,260), pady=(465, 0))
 
-        #called when the play button is pressed
+        # Called when the play button is pressed.
         def mpGame_button():
             algo.play_click_sound()
-            if self.mp_params != [None, None, None]: #if the parameters are selected
-                combobox_callback(-1) #update the current slider value
-                main.mg.mpGameCanvas('new') #calls the function in the next page to start the maze generation
-                algo.pmode = 'multi' #sets the mode for algo file player move functions in order for them to check for overlaps
+            """
+            If the parameters are selected:
+            -Update the current slider value.
+            -Call the function in the next page to start the maze generation.
+            -Set the mode for algo.py move_player functions in order for them to check for overlaps (pmode).
+            -Show the multiplayer game page
+            """
+            if self.params != [None, None, None]: #if the parameters are selected
+                self.params[0] = int(get_current_value())
+                main.mg.mpGameCanvas('new')
+                algo.pmode = 'multi'
                 controller.pages['mpGame'].show()
-                #reset
+                # Reset error message.
                 combobox_error_message.configure(text='')
             else:
                 combobox_error_message.configure(text='error : no maze generation algorithm selected')
@@ -587,19 +663,18 @@ class mpOptions(Page): #screen to select generation style and grid size for mult
         back_button = ctk.CTkButton(m_frame, height=40, corner_radius=8, border_width=3, text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="< BACK", command=back_button)
         back_button.grid(row=0, column=0, padx=(0,536), pady=(0,494))
 
-        combobox_callback(0)
-
-class mpGame(Page): #multiplayer game screen
+# The Singleplayer Game page class - a child of the Page class.
+class mpGame(Page):  # Multiplayer game screen.
     def __init__(self, controller, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
+        Page.__init__(self, *args, **kwargs)  # Inherits the page class.
 
-        self.controller = controller #controller for changing pages
-        self.imperfect = False #determines whether imperfect mazes are generated (settings)
+        self.controller = controller  # Controller for changing pages.
+        self.imperfect = False  # Determines whether imperfect mazes are generated (settings).
 
-        self.bg1label = ctk.CTkLabel(self, image = bg_game, text = '') #create label to place background image
+        self.bg1label = ctk.CTkLabel(self, image = bg_game, text = '')  # Create label to place background image.
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
 
-        #title
+        # Title.
         self.title_frame = ctk.CTkFrame(self)
         self.title_frame.place(relx=0.5, rely=0.1, anchor='center')
         title = ctk.CTkLabel(self.title_frame, text=" HEDGE ", text_color='#82925e', font=('Upheaval TT (BRK)', 50))
@@ -607,33 +682,31 @@ class mpGame(Page): #multiplayer game screen
         title.pack()
         subheading.pack()
         
-        #frame to contain GUI information on the left
+        # Frame to contain GUI information on the left.
         left_frame = ctk.CTkFrame(self, height=228, width=380)
         left_frame.place(relx=0.15, rely=0.495, anchor='center')
         
-        #styling
+        # Styling.
         left_image = ctk.CTkImage(Image.open("assets/game_left.png"), size=(191, 227))
         left_image_label = ctk.CTkLabel(left_frame, text='', image=left_image)
         left_image_label.place(relx=0, rely=0.5, anchor='w')
 
-        #info about algorithm and maze size on GUI
+        # Info about algorithm and maze size on GUI.
         self.algo_label = ctk.CTkLabel(left_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35, 'italic'))
         self.grid_label = ctk.CTkLabel(left_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 35, 'italic'))
         self.algo_label.place(x=150, rely=0.11)
         self.grid_label.place(x=150, rely=0.61)
 
-        #
-
-        #frame to contain GUI information on the right
+        # Frame to contain GUI information on the right.
         right_frame = ctk.CTkFrame(self, height=330, width=380)
         right_frame.place(relx=0.85, rely=0.495, anchor='center')
 
-        #styling
+        # Styling.
         right_image = ctk.CTkImage(Image.open('assets/mg_right.png'), size=(231, 329))
         right_image_label = ctk.CTkLabel(right_frame, text='', image=right_image)
         right_image_label.place(x=380, rely=0.5, anchor='e')
 
-        #displays the steps made by each player and the time elapsed
+        # Displays the steps made so far and the time elapsed.
         self.p1_step_label = ctk.CTkLabel(right_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 45, 'italic'))
         self.p2_step_label = ctk.CTkLabel(right_frame, text='', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 45, 'italic'))
         self.time_label = ctk.CTkLabel(right_frame, text='', text_color='#82925e', font=('Upheaval TT (BRK)', 50, 'italic'))
@@ -641,7 +714,7 @@ class mpGame(Page): #multiplayer game screen
         self.p2_step_label.place(x=100, rely=0.337, anchor='w')
         self.time_label.place(x=100, rely=0.755, anchor='w')
 
-        #progress bar - same as singleplayer but with two players
+        # Progress bars - utilises the manhattan distance between the players' current positions and the goal.
         self.progress1 = ctk.CTkProgressBar(self, width=600, height=5, corner_radius=5, progress_color='#c77373')
         self.progress1.set(0)
         self.progress1.place(relx=0.5, rely=0.9, anchor='center')
@@ -649,13 +722,13 @@ class mpGame(Page): #multiplayer game screen
         self.progress2.set(0)
         self.progress2.place(relx=0.5, rely=0.92, anchor='center')
 
-        #called when the back button is pressed
+        # Called when the back button is pressed.
         def back_button():
             self.update = False
             controller.pages['mpOptions'].show()
-            #styling
+            # Styling.
             self.retry_label.pack_forget()
-            #clears list of winners
+            # Clears list of winners.
             algo.order_list = []
         
         back_button = ctk.CTkButton(self, height=40, corner_radius=8, border_width=3, text_color='#FFFFFF', font=('Upheaval TT (BRK)', 25), text="QUIT", command=back_button)
@@ -663,129 +736,155 @@ class mpGame(Page): #multiplayer game screen
 
 
     def createNewMaze(self):
+        """
+        Creates a maze using algo.py and the parameters passed from multiplayer options
+        Only called when a new game is played.
+        """
         self.game_frame = ctk.CTkFrame(self, width=600, height=600)
         self.game_frame.place(relx=0.5, rely=0.5, anchor='center')
 
-        #displays the canvas created in the algo file
+        # Displays the canvas created in the algo file.
         algo.create_canvas(self.game_frame, canvas_colour)
-        #creates a graph object
-        algo.graph = algo.Graph(main.mo.mp_params[0])
+        # Creates a graph object - this is the foundation of the maze.
+        algo.graph = algo.Graph(main.mo.params[0])
 
-        self.grid_label.configure(text=f'{main.mo.mp_params[0]} x {main.mo.mp_params[0]} ')
+        self.grid_label.configure(text=f'{main.mo.params[0]} x {main.mo.params[0]} ')
 
-        #generates a maze depending on the algorithm selected
-        if main.mo.mp_params[1] == 'Depth First Search':
-            algo.graph.DFS() #calls DFS() on the graph object to generate a DFS maze
-            self.algo_label.configure(text='DFS ') #configures the label
-        elif main.mo.mp_params[1] == 'Hunt-and-Kill':
-            algo.graph.Hunt_and_Kill() #calls Hunt_and_Kill() on the graph object to generate a hunt and kill maze
-            self.algo_label.configure(text='Hunt - Kill') #configures the label
-        elif main.mo.mp_params[1] == 'Sidewinder':
-            algo.graph.Sidewinder() #calls Sidewinder() on the graph object to generate a sidewinder maze
-            self.algo_label.configure(text='Sidewinder ') #configures the label
+        # Generates a maze depending on the algorithm selected.
+        if main.mo.params[1] == 'Depth First Search':
+            algo.graph.DFS()  # Calls DFS() on the graph object to generate a DFS maze.
+            self.algo_label.configure(text='DFS ')  # Configures the label on the GUI
+        elif main.mo.params[1] == 'Hunt-and-Kill':
+            algo.graph.Hunt_and_Kill()  # Calls Hunt_and_Kill() on the graph object to generate a hunt and kill maze.
+            self.algo_label.configure(text='Hunt - Kill')  # Configures the label on the GUI
+        elif main.mo.params[1] == 'Sidewinder':
+            algo.graph.Sidewinder()  # Calls Sidewinder() on the graph object to generate a sidewinder maze.
+            self.algo_label.configure(text='Sidewinder ')  # Configures the label on the GUI
 
         if self.imperfect:
-            #if the imperfect maze switch is toggled on in settings, then make the graph imperfect
+            # If the imperfect maze switch is toggled on in settings, then make the graph imperfect.
             algo.graph.Imperfect()
 
-        #draw the maze on the canvas
+        # Draw the maze on the canvas.
         algo.draw_maze(algo.canvas_m, line_colour)
 
     def mpGameCanvas(self, mode):
-        #called only when the play button is pressed - NOT at initialisation
+        """
+        A function that is called only when the play button is pressed 
+        - NOT called at initialisation - which ensures that the game update loop only activates when 
+        a player presses play in an options menu.
+        """
 
-        #starts the update loop
+        # Starts the update loop.
         self.update = True
-        #starts the time
+        # Starts the time.
         self.mp_time_start = time.time()
 
-        #styling
+        # Styling.
         self.retry_label = ctk.CTkLabel(self.title_frame, text='repeated', text_color='#ca4754', font=('Upheaval TT (BRK)', 15))
         self.retry_label.pack()
 
         if mode == 'new':
-            #when a new maze is generated
+            # When a new maze is generated.
+            # Calls the createNewMaze() function
             self.createNewMaze()
+            # Styling.
             self.retry_label.pack_forget()
         elif mode == 'retry':
-            #after a maze is solved, the player can choose to replay the maze
-            self.retry_label.pack()
-            #removes the previous players' sprites
+            # Removes the previous players' sprites.
             algo.canvas_m.delete(algo.p1)
             algo.canvas_m.delete(algo.p2)
+            # Styling.
+            self.retry_label.pack()
 
-        #draws the players
+        # Draws the player.
         algo.draw_player('multi')
-        #sets the moves to 0
+        # Sets the players' moves to 0.
         algo.p1moves = 0
         algo.p2moves = 0
         
-        #update function - called every 100ms
+        # Update function - called every 100ms.
         def mpUpdate():
-            win_list = algo.detect_win('multi') 
-            if win_list[0]: #if a win is detected
+            """
+            Constantly detects for wins using algo.py.
+            If a win is detected, stop updating
+            If a win is not detected then keep updating
+            """
+            win_list = algo.detect_win('multi')
+            # If a win is detected.
+            if win_list[0]:
                 self.update = False
-                main.r.results('multi', win_list) #call results page and passes win_list
-                self.controller.pages['Results'].show() #shows the result page
-                #reset
+                main.r.results('multi', win_list)  # Call results page so it can display the relevant information.
+                self.controller.pages['Results'].show()  # Shows the result page.
+                # Styling.
                 self.retry_label.pack_forget()
+                # Reset the order_list.
                 algo.order_list = []
-            if self.update == True: #update loop
-                #update the progress bars
-                self.progress1.set(1-(algo.h('multi')[0]/(2*main.mo.mp_params[0]))) #h() is heuristic function
-                self.progress2.set(1-(algo.h('multi')[1]/(2*main.mo.mp_params[0])))
-                #update the step labels and the time label
+            
+            # If not won yet, refresh the elements on the GUI.
+            if self.update == True:
+                # Update the progress bars.
+                self.progress1.set(1-(algo.h('multi')[0]/(2*main.mo.params[0])))  # h() is heuristic function.
+                self.progress2.set(1-(algo.h('multi')[1]/(2*main.mo.params[0])))
+                # Update the step labels and the time label.
                 self.p1_step_label.configure(text=f'{algo.get_moves("multi")[0]}  ')
                 self.p2_step_label.configure(text=f'{algo.get_moves("multi")[1]}  ')
                 self.time_label.configure(text=f'{round(time.time()-self.mp_time_start, 1)}  ')
+                
                 root.after(100, mpUpdate)
 
         root.after(0, mpUpdate) #first run of the loop
 
-class Results(Page): #singleplayer results screen
+# The Results page class - a child of the Page class.
+class Results(Page):
     def __init__(self, controller, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
         self.controller = controller
+
+        # Defines the path tuple that will contain the list of shortest paths.
         self.path2 = {}
 
-        self.bg1label = ctk.CTkLabel(self, image = bg_res, text = '') #create label to place background image
+        self.bg1label = ctk.CTkLabel(self, image = bg_res, text = '')  # Create label to place background image.
         self.bg1label.place(relx=0.5, rely=0.5, anchor='center')
 
-    def return_button(self): #returns to the respective game selection page when 'new game' button is pressed
+    def return_button(self): # Returns to the respective game option selection page when 'new game' button is pressed.
         algo.play_click_sound()
         if self.mode == 'single':
             self.controller.pages['spOptions'].show()
         if self.mode == 'multi':
             self.controller.pages['mpOptions'].show()
 
-    def retry_button(self): #returns to the same maze for retry
+    def retry_button(self): # Returns to the same maze for reattempt.
         algo.play_click_sound()
         if self.mode == 'single':
-            main.sg.spGameCanvas('retry') #calls the function in the singleplayer game object in retry mode
+            main.sg.spGameCanvas('retry')  # Calls the function in the singleplayer game object in retry mode.
             self.controller.pages['spGame'].show()
         if self.mode == 'multi':
-            main.mg.mpGameCanvas('retry') #calls the function in the multiplayer game object in retry mode
+            main.mg.mpGameCanvas('retry')  # Calls the function in the multiplayer game object in retry mode.
             self.controller.pages['mpGame'].show()
     
-    def home_button(self): #returns to home - similar to return_button
+    def home_button(self):  # Returns to home - the main menu.
         algo.play_click_sound()
         self.controller.pages['mainMenu'].show()
     
-    #called when the game is finished - NOT at initialisation
     def results(self, mode, win_list=None):
+        """
+        Called when the game is finished - NOT at initialisation
+        """
         self.mode = mode
         
         self.m_frame = ctk.CTkFrame(self, width=1280, height=650)
         self.m_frame.place(relx=0.5, rely=0.5, anchor='center')
         
-        #frame to display results on left
+        # Frame to display results on the left.
         results_frame = ctk.CTkFrame(self.m_frame, width=500, height=650)
         results_frame.place(relx=0.2, rely=0.5, anchor='center')
         self.path2 = {} #path of solved solution
         
-        #displaying different information depending on the mode
+        # Displaying different information depending on the mode.
         if self.mode == 'single':
-            size = main.so.sp_params[0]
+            # Size of maze.
+            size = main.so.params[0]
 
             title = ctk.CTkLabel(results_frame, text='GAME STATS:', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 70))
             title.place(x=10, y=0)
@@ -793,24 +892,26 @@ class Results(Page): #singleplayer results screen
             steps = ctk.CTkLabel(results_frame, text=f'Steps Made: {algo.get_moves("single")}', font=('Upheaval TT (BRK)', 33))
             steps.place(x=10, y=190)
 
+            # Calculates the time taken for the player to reach the end.
             time_taken = ctk.CTkLabel(results_frame, text=f'Time Taken: {round(main.sg.sp_time_end - main.sg.sp_time_start, 1)} s', font=('Upheaval TT (BRK)', 33))
             time_taken.place(x=10, y=230)
+        
         elif self.mode == 'multi':
-            #size of maze
-            size = main.mo.mp_params[0]
-            #gets player1 and player2 times
+            # Size of maze.
+            size = main.mo.params[0]
+            # Gets player1 and player2 times.
             p1_time_end = win_list[0][1] if win_list[0][0] == 'p1' else win_list[1][1]
             p2_time_end = win_list[1][1] if win_list[0][0] == 'p1' else win_list[0][1]
 
-            #if comparing speed
-            if main.mo.mp_params[2] == 'speed':
+            # If comparing speed.
+            if main.mo.params[2] == 'speed':
                 if win_list[0][0] == 'p1':
                     title_text = 'RED WINS!'
                     text_color = '#c77373'
                 else:
                     title_text = 'YELLOW WINS!'
                     text_color = '#f4e59d'
-            else: #else if comparing least moves
+            else:  # Else if comparing least moves.
                 moves = algo.get_moves("multi")
                 if moves[0] < moves[1]:
                     title_text = 'RED WINS!'
@@ -818,11 +919,11 @@ class Results(Page): #singleplayer results screen
                 elif moves[0] > moves[1]:
                     title_text = 'YELLOW WINS!'
                     text_color = '#f4e59d'
-                else: #in the event of a draw
+                else:  # In the event of a draw.
                     title_text = 'DRAW!'
                     text_color = '#FFFFFF'
 
-            #place various labels on the GUI
+            # Place various labels on the GUI.
             title = ctk.CTkLabel(results_frame, text=title_text, text_color=text_color, font=('Upheaval TT (BRK)', 70))
             title.place(x=10, y=0)
                             
@@ -840,22 +941,22 @@ class Results(Page): #singleplayer results screen
             p2_time = ctk.CTkLabel(results_frame, text=f'Time: {round(p2_time_end - main.mg.mp_time_start, 2)} s', font=('Upheaval TT (BRK)', 33))
             p2_time.place(x=50, y=290)
 
-        #frame on the right - contains the solved maze when requested
+        # Frame on the right - contains the solved maze when requested.
         canvas_frame = ctk.CTkFrame(self.m_frame, width=600, height = 600)
-        algo.clone_canvas(algo.canvas_m, canvas_frame, canvas_colour, line_colour) #clones the game canvas
-        #styling
+        algo.clone_canvas(algo.canvas_m, canvas_frame, canvas_colour, line_colour)  # Clones the game canvas.
+        # Styling.
         algo.cloned.tag_lower(algo.cloned.create_rectangle(600-algo.w, 600-algo.w, 600, 600, width = 0, fill='#005b27'))
 
         button_frame = ctk.CTkFrame(self.m_frame, width=600, height = 600, fg_color=('#96a672', '#16291d'))
         button_frame.place(relx=0.7625, rely=0.5, anchor='center')
  
-        #called when the 'reveal solution' button is pressed
+        # Called when the 'reveal solution' button is pressed.
         def solve_maze():
-            #priority queue for A* algorithm
+            # Priority queue for A* algorithm.
             queue = PriorityQueue()
-            #get a gradient of colours for searching
+            # Get a gradient of colours for visualising searching.
             search_colours = algo.get_colour_gradient('#473d5a', '#005b27', 2*size-1)
-            #start node
+            # Start node.
             start = 0
             self.path = {}  
 
@@ -891,7 +992,7 @@ class Results(Page): #singleplayer results screen
                                     temp_g_score = g_score[cur_node] + 1
                                     temp_f_score = temp_g_score + algo.h('a*', child_node)
                                     
-                                    #draws the search cells
+                                    # Draws the search cells.
                                     index = algo.h('a*', child_node)
                                     algo.cloned.tag_lower(algo.cloned.create_rectangle(0+child_node%size*algo.w, 0+child_node//size*algo.w, child_node%size*algo.w + algo.w-0, child_node//size*algo.w + algo.w-0, tags='del', width = 0, fill=search_colours[index]))
                                     
@@ -903,7 +1004,7 @@ class Results(Page): #singleplayer results screen
                         root.after(1, astar_loop)
             root.after(0, astar_loop)
 
-            #draws the path of the shortest path
+            # Draws the path of the shortest path.
             def draw_path():
                 self.path2 = {}
                 node = size**2 - 1
@@ -916,25 +1017,27 @@ class Results(Page): #singleplayer results screen
                 algo.cloned.delete(algo.cloned.gettags("del"))
                 algo.draw_maze(algo.cloned, line_colour)
                 algo_steps = ctk.CTkLabel(results_frame, text=f'Optimal Path: {len(self.path2)} Steps', text_color=('#608f90','#a1d0d1'), font=('Upheaval TT (BRK)', 33))
+                
+                # Displays more info when the solution is revealed - the difference between their solution and the optimal one.
                 if self.mode == 'single':
                     algo_steps.place(x=10, y=300)
                     difference = ctk.CTkLabel(results_frame, text=f'Difference: {algo.get_moves("single")-len(self.path2)} Steps', font=('Upheaval TT (BRK)', 33))
                     difference.place(x=10, y=340)                
                 else:
                     algo_steps.place(x=10, y=350)
-                    p1_diff = ctk.CTkLabel(results_frame, text=f'red Difference: {algo.get_moves("multi")[0]-len(self.path2)}', font=('Upheaval TT (BRK)', 33))
+                    p1_diff = ctk.CTkLabel(results_frame, text=f'Red Difference: {algo.get_moves("multi")[0]-len(self.path2)}', font=('Upheaval TT (BRK)', 33))
                     p1_diff.place(x=10, y=410)
-                    p2_diff = ctk.CTkLabel(results_frame, text=f'yellow Difference: {algo.get_moves("multi")[1]-len(self.path2)}', font=('Upheaval TT (BRK)', 33))
+                    p2_diff = ctk.CTkLabel(results_frame, text=f'Yellow Difference: {algo.get_moves("multi")[1]-len(self.path2)}', font=('Upheaval TT (BRK)', 33))
                     p2_diff.place(x=10, y=440)
 
-        # called when the 'reveal solution' button is pressed
+        # Called when the 'reveal solution' button is pressed.
         def show_canvas():
             algo.play_click_sound()
             button_frame.place_forget()
             canvas_frame.place(relx=0.7625, rely=0.5, anchor='center')
             solve_maze()
 
-        # reveal solution button
+        # Reveal solution button.
         button = ctk.CTkButton(button_frame, height=35, text='Reveal solution', font=('Upheaval TT (BRK)', 25), command=show_canvas)
         button.place(x=300, y=300, anchor='center')
 
@@ -946,35 +1049,35 @@ class Results(Page): #singleplayer results screen
 
         home_button = ctk.CTkButton(results_frame, corner_radius=8, border_width=3, height=60, width=100, text='HOME', font=('Upheaval TT (BRK)', 35), command=self.home_button)
         home_button.place(x=380, y=565)
-class Window(ctk.CTkFrame): #create main window
+class Window(ctk.CTkFrame): # Create main window.
     def __init__(self, *args, **kwargs):
         ctk.CTkFrame.__init__(self, *args, **kwargs)
 
-        #create a dictionary for all of the different selection pages
+        # Create a dictionary for all of the different selection pages.
         self.pages = {}
         for Subclass in (mainMenu, settings, modeSelection, spOptions, mpOptions, spGame, mpGame, Results):
             self.pages[Subclass.__name__] = Subclass(self)
         
         self.mm, self.st, self.ms, self.so, self.mo, self.sg, self.mg, self.r = self.pages.values()
         
-        #creating a container frame to contain the widgets of each page
+        # Creating a container frame to contain the widgets of each page.
         container = ctk.CTkFrame(self)
         container.pack(side="top", fill="both", expand=True)
 
-        #place all of the widgets into the frame
+        # Place all of the widgets into the frame.
         for window in self.pages.values():
             window.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
         
-        #show the first set of widgets - the main menu widgets on startup
+        # Show the first set of widgets - the main menu widgets on startup.
         self.mm.show()
 
-    def switch_theme(self): #function to switch theme
+    def switch_theme(self):  # Function to switch theme.
         global theme, canvas_colour, line_colour
         if theme == 'light':
             theme = 'dark'
             canvas_colour = '#16291d'
             line_colour = '#afbf8b'
-            #change all background images
+            # Change all background images.
             self.mm.bg2label.configure(image=ctk.CTkImage(Image.open('assets/bg2.png'), size=(900, 700)))
             self.mm.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2bg.png'), size=(1920, 1080)))
             self.st.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad2set.png'), size=(1920, 1080)))
@@ -988,7 +1091,7 @@ class Window(ctk.CTkFrame): #create main window
             theme = 'light'
             canvas_colour = '#82925e'
             line_colour = '#FFFFFF'
-            #change all background images
+            # Change all background images.
             self.mm.bg2label.configure(image=ctk.CTkImage(Image.open('assets/bg1.png'), size=(900, 700)))
             self.mm.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1bg.png'), size=(1920, 1080)))
             self.st.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1set.png'), size=(1920, 1080)))
@@ -998,20 +1101,20 @@ class Window(ctk.CTkFrame): #create main window
             self.sg.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1game.png'), size=(1920, 1080)))
             self.mg.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1game.png'), size=(1920, 1080)))
             self.r.bg1label.configure(image=ctk.CTkImage(Image.open('assets/grad1res.png'), size=(1920, 1080)))
-        #change theme of widgets
+        # Change the theme of widgets.
         ctk.set_appearance_mode(theme)
 
 if __name__ == "__main__":
-    #initialises the tkinter window
+    # Initialises the tkinter window.
     root = ctk.CTk()
     main = Window(root)
-    main.pack(side="top", fill="both", expand=True) #
-    root.geometry("1600x900") #window size
-    root.minsize(1500, 900) #minimum window size
-    root.title('Hedge') #window title
-    root.iconbitmap('assets/icon.ico') #window icon
+    main.pack(side="top", fill="both", expand=True)
+    root.geometry("1600x900")  # Window size at launch (resizable).
+    root.minsize(1500, 900) # Minimum window size.
+    root.title('Hedge') # Window title.
+    root.iconbitmap('assets/icon.ico') # Window icon.
 
-    #keyboard bindings
+    # Keyboard bindings.
     root.bind('<w>', algo.move_p1)
     root.bind('<W>', algo.move_p1)
     root.bind('<a>', algo.move_p1)
@@ -1028,7 +1131,7 @@ if __name__ == "__main__":
     root.bind('<Q>', algo.return_start)
     root.bind('</>', algo.return_start)
 
-    #function to toggle fullscreen using f11
+    # Function to toggle fullscreen using the f11 key.
     def toggle_fullscreen(event=None):
         global fullscreen
         if fullscreen:
@@ -1041,4 +1144,5 @@ if __name__ == "__main__":
     fullscreen = False
     root.bind("<F11>", toggle_fullscreen)
 
+    # Game event loop.
     root.mainloop()
