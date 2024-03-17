@@ -2,22 +2,22 @@ import customtkinter as ctk
 import numpy as np
 import random
 import time
-import pygame
+from pygame import mixer
 
-pygame.mixer.init()  # Initialises the pygame mixer to play sounds.
+mixer.init()  # Initialises the pygame mixer to play sounds.
 
 def play_click_sound():
     # Plays a clicking sound whenever called.
-    pygame.mixer.music.load("assets/click.mp3") 
-    pygame.mixer.music.play(loops=0)
+    mixer.music.load("assets/click.mp3") 
+    mixer.music.play(loops=0)
 
 # Determines whether to play the move sound whenever a player moves.
 sound_allowed = True
 def play_move_sound():
     if sound_allowed:
         # Plays a sound whenever called.
-        pygame.mixer.music.load("assets/move.mp3")
-        pygame.mixer.music.play(loops=0)
+        mixer.music.load("assets/move.mp3")
+        mixer.music.play(loops=0)
 
 # NODES AND VERTICES ARE USED INTERCHANGEABLY (as they are the same in graph theory)
 
@@ -106,10 +106,10 @@ class Graph:
                 break
 
             except RecursionError:
-                print('recursion error')
+                print('Recursion error handled: regenerating maze')
                 self.__init__(self.size)
             
-    def Hunt_and_Kill(self):  # The Hunt-and-Kill maze generation algorithm.
+    def Hunt_and_Kill(self):
         node_visited = [0 for i in range(self.num_nodes)]
         cur_node = random.randrange(self.num_nodes)
 
@@ -160,7 +160,7 @@ class Graph:
         for row in range(self.size):
             run_start = 0
             for node in range(self.size):
-                if row > 0 and (node+1 == self.size or random.randrange(2)):
+                if row > 0 and (node+1 == self.size or random.randrange(2) == 0):
                     # Carve north.
                     rand_node = run_start+random.randrange(node-run_start+1)
                     self.remove_wall(self.size*row+rand_node, self.size*(row-1)+rand_node)
