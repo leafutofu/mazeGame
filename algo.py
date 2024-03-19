@@ -30,17 +30,17 @@ class Graph:
         # Number of rows/columns.
         self.size = size
         # Number of total nodes in the graph.
-        self.num_nodes = self.size**2
+        self.__num_nodes = self.size**2
         """
         The adjacency matrix for the graph.
         In this case, 0 means there is an edge between the two nodes and 1 means there isn't an edge between the two nodes.
         This may seem counterintuitive, but it means that 1 implies there is a wall between two cells.
         """
-        adj_mat = [[0 for column in range(self.num_nodes)]
-                        for row in range(self.num_nodes)] 
+        adj_mat = [[0 for column in range(self.__num_nodes)]
+                        for row in range(self.__num_nodes)] 
         
         # Removes the edges between all of the node (adding walls between nodes in a grid graph, ensuring that walls are added only within the boundaries of the grid and do not exceed them).
-        for node in range(self.num_nodes):
+        for node in range(self.__num_nodes):
             # Ensures node is not at the end of a row.
             if (node+1)%self.size != 0: 
                 # Adds a wall between the current cell and the cell to the immediate right unless the cell is at the end of a row.
@@ -76,7 +76,7 @@ class Graph:
     def DFS(self):  # The Depth First Search maze generation algorithm.
         while True:
             try:
-                node_visited = [0 for i in range(self.num_nodes)]
+                node_visited = [0 for i in range(self.__num_nodes)]
                 start_node = 0
 
                 def unvisited_neighbours(cur_node):
@@ -110,8 +110,8 @@ class Graph:
                 self.__init__(self.size)
             
     def Hunt_and_Kill(self):
-        node_visited = [0 for i in range(self.num_nodes)]
-        cur_node = random.randrange(self.num_nodes)
+        node_visited = [0 for i in range(self.__num_nodes)]
+        cur_node = random.randrange(self.__num_nodes)
 
         def walk(cur_node):
             node_visited[cur_node] = 1
@@ -129,7 +129,7 @@ class Graph:
             return node
             
         def hunt():
-            for cur_node in range(self.num_nodes):
+            for cur_node in range(self.__num_nodes):
                 if node_visited[cur_node] == 0:
                     neighbours = []
                     directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -179,11 +179,11 @@ class Graph:
         If the cell is not at the last row and there is a wall between the cell and its neighbour below it
         randomly decide to remove wall between these two cells
         """
-        for node in range(self.num_nodes):
+        for node in range(self.__num_nodes):
             if (node+1) % self.size != 0:
                 if self.detect_wall(node, node+1) and random.randrange(self.size*2) == 1: 
                     self.remove_wall(node, node+1)
-            if node < (self.num_nodes-self.size):
+            if node < (self.__num_nodes-self.size):
                 if self.detect_wall(node, node+self.size) and random.randrange(self.size*2) == 1:
                     self.remove_wall(node, node+self.size)
 
