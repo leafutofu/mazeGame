@@ -976,19 +976,18 @@ class Results(Page):
                     else:
                         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]#EWSN
                         for dy, dx in directions:
-                            node = cur_node + dy * size + dx
+                            child_node = cur_node + dy * size + dx
                             p = True
                             if dx == 1 and (cur_node+1) % size == 0:
                                 p = False
                             if dx == -1 and cur_node % size == 0:
                                 p = False
-                            if dy == 1 and (node+1) > size**2:
+                            if dy == 1 and (child_node+1) > size**2:
                                 p = False
                             if dy == -1 and cur_node < size:    
                                 p = False
                             if p == True:
-                                if algo.graph.detect_wall(cur_node, node) == False:
-                                    child_node = node
+                                if algo.graph.detect_wall(cur_node, child_node) == False:
                                     temp_g_score = g_score[cur_node] + 1
                                     temp_f_score = temp_g_score + algo.h('a*', child_node)
                                     
@@ -997,10 +996,10 @@ class Results(Page):
                                     algo.cloned.tag_lower(algo.cloned.create_rectangle(0+child_node%size*algo.w, 0+child_node//size*algo.w, child_node%size*algo.w + algo.w-0, child_node//size*algo.w + algo.w-0, tags='del', width = 0, fill=search_colours[index]))
                                     
                                     if temp_f_score < f_score[child_node]:
-                                        g_score[child_node]= temp_g_score
-                                        f_score[child_node]= temp_f_score
+                                        g_score[child_node] = temp_g_score
+                                        f_score[child_node] = temp_f_score
                                         queue.put((temp_f_score, algo.h('a*', child_node), child_node))
-                                        self.path[child_node]=cur_node
+                                        self.path[child_node] = cur_node
                         root.after(1, astar_loop)
             root.after(0, astar_loop)
 
@@ -1049,6 +1048,7 @@ class Results(Page):
 
         home_button = ctk.CTkButton(results_frame, corner_radius=8, border_width=3, height=60, width=100, text='HOME', font=('Upheaval TT (BRK)', 35), command=self.home_button)
         home_button.place(x=380, y=565)
+        
 class Window(ctk.CTkFrame): # Create main window.
     def __init__(self, *args, **kwargs):
         ctk.CTkFrame.__init__(self, *args, **kwargs)

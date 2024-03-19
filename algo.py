@@ -281,11 +281,11 @@ def h(mode, node=None):
         y = node // cols + 1
         return (cols-x) + (cols-y)
 
-# Function to convert hex to rgb values.
+# Function to convert hex to rgb values - purely for aesthetics
 def hex_to_RGB(hex_str):
     return [int(hex_str[i:i+2], 16) for i in range(1,6,2)]
 
-# Function to generate a gradient in the form of a list of n colours that vary slightly between two input colours.
+# Function to generate a gradient in the form of a list of n colours that vary slightly between two input colours - purely for aesthetics
 def get_colour_gradient(c1, c2, n):
     assert n > 1
     c1_rgb = np.array(hex_to_RGB(c1))/255
