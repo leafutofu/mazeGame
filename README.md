@@ -1,4 +1,4 @@
-# Maze Game NEA
+# Maze Game
 
 A maze solving game.
 
