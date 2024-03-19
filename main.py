@@ -375,7 +375,6 @@ class spOptions(Page): # Screen to select generation style and grid size for sin
 
     # Called when the play button is pressed.
     def __spGame_button(self):
-        algo.play_click_sound()
         """
         If the parameters are selected:
         -Update the current slider value.
@@ -384,6 +383,7 @@ class spOptions(Page): # Screen to select generation style and grid size for sin
         -Show the singleplayer game page
         """
         if self.params != []:
+            algo.play_start_sound()
             self._params[0] = int(self.__get_current_value())
             main.sg.spGameCanvas('new')
             algo.pmode = ''
@@ -391,6 +391,7 @@ class spOptions(Page): # Screen to select generation style and grid size for sin
             # Reset error message.
             self.__combobox_error_message.configure(text='')
         else:
+            algo.play_click_sound()
             self.__combobox_error_message.configure(text='error : no maze generation algorithm selected')
 
     def __back_button(self):
@@ -686,7 +687,6 @@ class mpOptions(Page): # Screen to select generation style and grid size for mul
 
     # Called when the play button is pressed.
     def mpGame_button(self):
-        algo.play_click_sound()
         """
         If the parameters are selected:
         -Update the current slider value.
@@ -695,6 +695,7 @@ class mpOptions(Page): # Screen to select generation style and grid size for mul
         -Show the multiplayer game page
         """
         if self._params != [None, None, None]: #if the parameters are selected
+            algo.play_start_sound()
             self._params[0] = int(self.__get_current_value())
             main.mg.mpGameCanvas('new')
             algo.pmode = 'multi'
@@ -702,6 +703,7 @@ class mpOptions(Page): # Screen to select generation style and grid size for mul
             # Reset error message.
             self.__combobox_error_message.configure(text='')
         else:
+            algo.click_sound()
             self.__combobox_error_message.configure(text='error : no maze generation algorithm selected')
             
     def __back_button(self):
@@ -939,6 +941,8 @@ class Results(Page):
             # Size of maze.
             self._size = main.so.params[0]
 
+            algo.play_win_sound()
+
             title = ctk.CTkLabel(self.__results_frame, text='GAME STATS:', text_color='#FFFFFF', font=('Upheaval TT (BRK)', 70))
             title.place(x=10, y=0)
 
@@ -960,20 +964,23 @@ class Results(Page):
             # If comparing speed.
             if main.mo.params[2] == 'speed':
                 if self._win_list[0][0] == 'p1':
-                    title_text = 'RED WINS!'
-                    text_color = '#c77373'
+                    self.__title_text = 'RED WINS!'
+                    self.__text_color = '#c77373'
                 else:
-                    title_text = 'YELLOW WINS!'
-                    text_color = '#f4e59d'
+                    self.__title_text = 'YELLOW WINS!'
+                    self.__text_color = '#f4e59d'
             else:  # Else if comparing least moves.
                 self._moves = algo.get_moves("multi")
                 if self._moves[0] < self._moves[1]:
+                    algo.play_win_sound()
                     self.__title_text = 'RED WINS!'
                     self.__text_color = '#c77373'
                 elif self._moves[0] > self._moves[1]:
+                    algo.play_win_sound()
                     self.__title_text = 'YELLOW WINS!'
                     self.__text_color = '#f4e59d'
                 else:  # In the event of a draw.
+                    algo.play_win_sound('draw')
                     self.__title_text = 'DRAW!'
                     self.__text_color = '#FFFFFF'
 
@@ -1168,6 +1175,7 @@ if __name__ == "__main__":
     # Initialises the tkinter window.
     root = ctk.CTk()
     main = Window(root)
+    algo.play_startup_sound()
     main.pack(side="top", fill="both", expand=True)
     root.geometry("1600x900")  # Window size at launch (resizable).
     root.minsize(1500, 900) # Minimum window size.

@@ -11,12 +11,37 @@ def play_click_sound():
     mixer.music.load("assets/click.mp3") 
     mixer.music.play(loops=0)
 
+def play_win_sound(case=None):
+    # Plays a sound when the game ends
+    if case == 'draw':
+        mixer.music.load("assets/draw.mp3") 
+        mixer.music.play(loops=0)
+    else:
+        mixer.music.load("assets/win.mp3") 
+        mixer.music.play(loops=0)
+
+def play_start_sound():
+    # Plays a sound whenever the user starts a game.
+    mixer.music.load("assets/start.mp3") 
+    mixer.music.play(loops=0)
+
+def play_startup_sound():
+    # Plays a sound on startup
+    mixer.music.load("assets/startup.mp3") 
+    mixer.music.play(loops=0)
+
 # Determines whether to play the move sound whenever a player moves.
 sound_allowed = True
 def play_move_sound():
     if sound_allowed:
         # Plays a sound whenever called.
         mixer.music.load("assets/move.mp3")
+        mixer.music.play(loops=0)
+
+def play_jump_sound():
+    if sound_allowed:
+        # Plays a sound whenever the player returns to the start using 'q' or '/'
+        mixer.music.load("assets/jump.mp3") 
         mixer.music.play(loops=0)
 
 # NODES AND VERTICES ARE USED INTERCHANGEABLY (as they are the same in graph theory)
@@ -28,9 +53,9 @@ class Graph:
         # Width of each cell is the width of the canvas (600 pixels) divided by the size (number of rows/columns).
         w = 600 / size
         # Number of rows/columns.
-        self.size = size
+        self.__size = size
         # Number of total nodes in the graph.
-        self.__num_nodes = self.size**2
+        self.__num_nodes = self.__size**2
         """
         The adjacency matrix for the graph.
         In this case, 0 means there is an edge between the two nodes and 1 means there isn't an edge between the two nodes.
@@ -42,13 +67,13 @@ class Graph:
         # Removes the edges between all of the node (adding walls between nodes in a grid graph, ensuring that walls are added only within the boundaries of the grid and do not exceed them).
         for node in range(self.__num_nodes):
             # Ensures node is not at the end of a row.
-            if (node+1)%self.size != 0: 
+            if (node+1)%self.__size != 0: 
                 # Adds a wall between the current cell and the cell to the immediate right unless the cell is at the end of a row.
                 self.add_wall(node, node+1)
             # Ensures node is not on the bottom row.
-            if node+self.size <= self.size**2 - 1:
+            if node+self.__size <= self.__size**2 - 1:
                 # Adds a wall between the current cell and the cell immediately beneath it unless it is on the bottom row.
-                self.add_wall(node, node+self.size)
+                self.add_wall(node, node+self.__size)
     
     # Function to remove edges between two nodes (add walls between two cells node1 and node2).
     def add_wall(self, node1, node2):
@@ -84,9 +109,9 @@ class Graph:
                     directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]#rlbt
                     for dy, dx in directions:
                         try:
-                            if self.detect_wall(cur_node, cur_node + dy * self.size + dx) == True:
-                                if node_visited[cur_node + dy * self.size + dx] == 0:
-                                    lst.append(cur_node + dy * self.size + dx)
+                            if self.detect_wall(cur_node, cur_node + dy * self.__size + dx) == True:
+                                if node_visited[cur_node + dy * self.__size + dx] == 0:
+                                    lst.append(cur_node + dy * self.__size + dx)
                         except IndexError:
                             pass
                     return lst if lst else [-1]
@@ -107,7 +132,7 @@ class Graph:
 
             except RecursionError:
                 print('Recursion error handled: regenerating maze')
-                self.__init__(self.size)
+                self.__init__(self.__size)
             
     def Hunt_and_Kill(self):
         node_visited = [0 for i in range(self.__num_nodes)]
@@ -120,9 +145,9 @@ class Graph:
             node = -1
             for dy, dx in directions:
                 try:
-                    if self.detect_wall(cur_node, cur_node + dy * self.size + dx) and node_visited[cur_node + dy * self.size + dx] == 0:
-                        node = cur_node + dy * self.size + dx
-                        self.remove_wall(cur_node, cur_node + dy * self.size + dx)
+                    if self.detect_wall(cur_node, cur_node + dy * self.__size + dx) and node_visited[cur_node + dy * self.__size + dx] == 0:
+                        node = cur_node + dy * self.__size + dx
+                        self.remove_wall(cur_node, cur_node + dy * self.__size + dx)
                         break
                 except IndexError:
                     pass
@@ -135,7 +160,7 @@ class Graph:
                     directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
                     for dy, dx in directions:
                         try:
-                            check_node = cur_node + dy * self.size + dx
+                            check_node = cur_node + dy * self.__size + dx
                             if node_visited[check_node] == 1 and self.detect_wall(cur_node, check_node):
                                 neighbours.append((dy, dx))
                                 pass
@@ -144,7 +169,7 @@ class Graph:
                     if neighbours:
                         dy, dx = random.choice(neighbours)
                         node_visited[cur_node] = 1
-                        node = cur_node + dy * self.size + dx
+                        node = cur_node + dy * self.__size + dx
                         self.remove_wall(cur_node, node)
                         return cur_node
             return -1
@@ -157,17 +182,17 @@ class Graph:
                 break
                 
     def Sidewinder(self):  # The Sidewinder maze generation algorithm.
-        for row in range(self.size):
+        for row in range(self.__size):
             run_start = 0
-            for node in range(self.size):
-                if row > 0 and (node+1 == self.size or random.randrange(2) == 0):
+            for node in range(self.__size):
+                if row > 0 and (node+1 == self.__size or random.randrange(2) == 0):
                     # Carve north.
                     rand_node = run_start+random.randrange(node-run_start+1)
-                    self.remove_wall(self.size*row+rand_node, self.size*(row-1)+rand_node)
+                    self.remove_wall(self.__size*row+rand_node, self.__size*(row-1)+rand_node)
                     run_start = node+1
-                elif node+1 < self.size:
+                elif node+1 < self.__size:
                     # Carve east.
-                    self.remove_wall(self.size*row+node, self.size*row+node+1)
+                    self.remove_wall(self.__size*row+node, self.__size*row+node+1)
 
     # A function to randomly remove walls in an already generated maze (activated in the settings page under 'generate imperfact maze').
     def Imperfect(self):
@@ -180,12 +205,16 @@ class Graph:
         randomly decide to remove wall between these two cells
         """
         for node in range(self.__num_nodes):
-            if (node+1) % self.size != 0:
-                if self.detect_wall(node, node+1) and random.randrange(self.size*2) == 1: 
+            if (node+1) % self.__size != 0:
+                if self.detect_wall(node, node+1) and random.randrange(self.__size*2) == 1: 
                     self.remove_wall(node, node+1)
-            if node < (self.__num_nodes-self.size):
-                if self.detect_wall(node, node+self.size) and random.randrange(self.size*2) == 1:
-                    self.remove_wall(node, node+self.size)
+            if node < (self.__num_nodes-self.__size):
+                if self.detect_wall(node, node+self.__size) and random.randrange(self.__size*2) == 1:
+                    self.remove_wall(node, node+self.__size)
+
+    @property
+    def num_nodes(self):
+        return self.__num_nodes
 
 # Function to create the maze canvas and pass it to the main program
 def create_canvas(frame, canvas_colour):
@@ -473,10 +502,12 @@ def move_p2(event):
             break
 
 ret_start_allowed = False  # Activated in the settings page under 'allow return to start'.
- # A function that allows players to return to node 0 by pressing a key - togglable.
+
+# A function that allows players to return to node 0 by pressing a key - togglable.
 def return_start(event):
     while ret_start_allowed:
         try:
+            play_jump_sound()
             if event.keysym.lower() == 'q':
                 canvas_m.moveto(p1, 3, 3)
                 if pmode == 'multi':
