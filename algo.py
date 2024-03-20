@@ -55,17 +55,17 @@ class Graph:
         # Number of rows/columns.
         self.__size = size
         # Number of total nodes in the graph.
-        self.__num_nodes = self.__size**2
+        self._num_nodes = self.__size**2
         """
         The adjacency matrix for the graph.
         In this case, 0 means there is an edge between the two nodes and 1 means there isn't an edge between the two nodes.
         This may seem counterintuitive, but it means that 1 implies there is a wall between two cells.
         """
-        adj_mat = [[0 for column in range(self.__num_nodes)]
-                        for row in range(self.__num_nodes)] 
+        adj_mat = [[0 for column in range(self._num_nodes)]
+                        for row in range(self._num_nodes)] 
         
         # Removes the edges between all of the node (adding walls between nodes in a grid graph, ensuring that walls are added only within the boundaries of the grid and do not exceed them).
-        for node in range(self.__num_nodes):
+        for node in range(self._num_nodes):
             # Ensures node is not at the end of a row.
             if (node+1)%self.__size != 0: 
                 # Adds a wall between the current cell and the cell to the immediate right unless the cell is at the end of a row.
@@ -101,7 +101,7 @@ class Graph:
     def DFS(self):  # The Depth First Search maze generation algorithm.
         while True:
             try:
-                node_visited = [0 for i in range(self.__num_nodes)]
+                node_visited = [0 for i in range(self._num_nodes)]
                 start_node = 0
 
                 def unvisited_neighbours(cur_node):
@@ -135,8 +135,8 @@ class Graph:
                 self.__init__(self.__size)
             
     def Hunt_and_Kill(self):
-        node_visited = [0 for i in range(self.__num_nodes)]
-        cur_node = random.randrange(self.__num_nodes)
+        node_visited = [0 for i in range(self._num_nodes)]
+        cur_node = random.randrange(self._num_nodes)
 
         def walk(cur_node):
             node_visited[cur_node] = 1
@@ -154,7 +154,7 @@ class Graph:
             return node
             
         def hunt():
-            for cur_node in range(self.__num_nodes):
+            for cur_node in range(self._num_nodes):
                 if node_visited[cur_node] == 0:
                     neighbours = []
                     directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -204,17 +204,17 @@ class Graph:
         If the cell is not at the last row and there is a wall between the cell and its neighbour below it
         randomly decide to remove wall between these two cells
         """
-        for node in range(self.__num_nodes):
+        for node in range(self._num_nodes):
             if (node+1) % self.__size != 0:
                 if self.detect_wall(node, node+1) and random.randrange(self.__size*2) == 1: 
                     self.remove_wall(node, node+1)
-            if node < (self.__num_nodes-self.__size):
+            if node < (self._num_nodes-self.__size):
                 if self.detect_wall(node, node+self.__size) and random.randrange(self.__size*2) == 1:
                     self.remove_wall(node, node+self.__size)
 
     @property
     def num_nodes(self):
-        return self.__num_nodes
+        return self._num_nodes
 
 # Function to create the maze canvas and pass it to the main program
 def create_canvas(frame, canvas_colour):

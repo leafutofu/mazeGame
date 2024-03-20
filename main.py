@@ -1125,15 +1125,16 @@ class Window(ctk.CTkFrame): # Create main window.
         for Subclass in (mainMenu, settings, modeSelection, spOptions, mpOptions, spGame, mpGame, Results):
             self.pages[Subclass.__name__] = Subclass(self)
         
+        # Instantiating the page classes
         self.mm, self.st, self.ms, self.so, self.mo, self.sg, self.mg, self.r = self.pages.values()
         
         # Creating a container frame to contain the widgets of each page.
-        container = ctk.CTkFrame(self)
-        container.pack(side="top", fill="both", expand=True)
+        self.__container = ctk.CTkFrame(self)
+        self.__container.pack(side="top", fill="both", expand=True)
 
         # Place all of the widgets into the frame.
         for window in self.pages.values():
-            window.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
+            window.place(in_=self.__container, x=0, y=0, relwidth=1, relheight=1)
         
         # Show the first set of widgets - the main menu widgets on startup.
         self.mm.show()
@@ -1170,6 +1171,13 @@ class Window(ctk.CTkFrame): # Create main window.
             self.r.bglabel.configure(image=ctk.CTkImage(Image.open('assets/grad1res.png'), size=(1920, 1080)))
         # Change the theme of widgets.
         ctk.set_appearance_mode(theme)
+    
+    # Function to toggle fullscreen using the f11 key.
+    def toggle_fullscreen(self, event=None):
+        if root.attributes("-fullscreen"):
+            root.attributes("-fullscreen", False)
+        else:
+            root.attributes("-fullscreen", True)
 
 if __name__ == "__main__":
     # Initialises the tkinter window.
@@ -1198,14 +1206,7 @@ if __name__ == "__main__":
     root.bind('<q>', algo.return_start)
     root.bind('<Q>', algo.return_start)
     root.bind('</>', algo.return_start)
-
-    # Function to toggle fullscreen using the f11 key.
-    def toggle_fullscreen(event=None):
-        if root.attributes("-fullscreen"):
-            root.attributes("-fullscreen", False)
-        else:
-            root.attributes("-fullscreen", True)
-    root.bind("<F11>", toggle_fullscreen)
+    root.bind("<F11>", main.toggle_fullscreen)
 
     # Game event loop.
     root.mainloop()
