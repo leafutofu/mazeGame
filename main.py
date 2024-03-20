@@ -880,6 +880,7 @@ class mpGame(Page):  # Multiplayer game screen.
 
     # Called when the back button is pressed.
     def __back_button(self):
+        algo.play_click_sound()
         self._update = False
         self._controller.pages['mpOptions'].show()
         # Styling.
