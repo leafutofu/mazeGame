@@ -228,11 +228,11 @@ class settings(Page):
     def __gen_switch_event(self):
         self.__gen_button.invoke()  # Invokes the radiobutton to show the information about this particular switch.
         if self._gen_switch_var.get() == 'on':
-            main.sg.imperfect = True
-            main.mg.imperfect = True
+            main.sg._imperfect = True
+            main.mg._imperfect = True
         elif self._gen_switch_var.get() == 'off':
-            main.sg.imperfect = False
-            main.mg.imperfect = False
+            main.sg._imperfect = False
+            main.mg._imperfect = False
 
     # Allows returning to start by pressing Q.
     def __ret_switch_event(self):
@@ -999,6 +999,8 @@ class Results(Page):
 
     def __return_button(self): # Returns to the respective game option selection page when 'new game' button is pressed.
         algo.play_click_sound()
+        algo.p1allowed = True
+        algo.p2allowed = True
         if self._mode == 'single':
             self._controller.pages['spOptions'].show()
         if self._mode == 'multi':
