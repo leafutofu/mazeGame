@@ -619,7 +619,7 @@ class spGame(Page):  # Singleplayer game screen.
     # Called when the back button is pressed.
     def __back_button(self):
         algo.play_click_sound()
-        p1allowed, p2allowed = True, True
+        algo.p1allowed, algo.p2allowed = True, True
         self._update = False
         self._controller.pages['spOptions'].show()
         # Styling.
@@ -978,7 +978,7 @@ class mpGame(Page):  # Multiplayer game screen.
     def __back_button(self):
         algo.play_click_sound()
         self._update = False
-        p1allowed, p2allowed = True, True
+        algo.p1allowed, algo.p2allowed = True, True
         self._controller.pages['mpOptions'].show()
         # Styling.
         self.__retry_label.pack_forget()
